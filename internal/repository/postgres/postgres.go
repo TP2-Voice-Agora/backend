@@ -12,6 +12,7 @@ type PostgresRepository struct {
 	db *sqlx.DB
 }
 
+// use ConnectDB before query, and CloseConnectDB when query is finished
 func (pg *PostgresRepository) ConnectDB(sourceURL string) error {
 	var err error
 	// sourceURL := "postgres://username:password@localhost:5432/database_name"

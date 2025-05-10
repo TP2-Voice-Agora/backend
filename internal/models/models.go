@@ -15,6 +15,7 @@ type User struct {
 	Surname    string     `db:"surname"`
 	PositionID int        `db:"position_id"`
 	Email      string     `db:"email"`
+	Password   string     `db:"password"`
 	Phone      string     `db:"phone"`
 	HireDate   *time.Time `db:"hire_date"`
 	LastOnline *time.Time `db:"last_online"`
