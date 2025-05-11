@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"context"
 	"errors"
 	"github.com/google/uuid"
 	"gitlab.com/ictisagora/backend/internal/lib/jwt"
@@ -60,7 +59,6 @@ func (a *Auth) Register(u models.User) error {
 }
 
 func (a *Auth) Login(
-	ctx context.Context,
 	email string,
 	password string,
 ) (string, error) {
