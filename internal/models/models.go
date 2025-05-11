@@ -57,3 +57,8 @@ type Reply struct {
 	Timestamp time.Time `db:"timestamp"`
 	ReplyText string    `db:"reply_text"`
 }
+
+type BrowseHistory struct {
+	VisitorID string `db:"visitor_id"`
+	IdeaID    string `db:"idea_id"`
+}

@@ -77,6 +77,7 @@ func (pg *PostgresRepository) SelectPositions() ([]models.UserPosition, error) {
 	var positions []models.UserPosition
 
 	rows, err := pg.db.Queryx(q, args...)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -121,6 +122,7 @@ func (pg *PostgresRepository) SelectIdeas() ([]models.Idea, error) {
 	var ideas []models.Idea
 
 	rows, err := pg.db.Queryx(q, args...)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -129,6 +131,42 @@ func (pg *PostgresRepository) SelectIdeas() ([]models.Idea, error) {
 		var idea models.Idea
 		err = rows.StructScan(&idea)
 		if err != nil {
+			return nil, err
+		}
+		ideas = append(ideas, idea)
+	}
+
+	return ideas, nil
+}
+
+func (pg *PostgresRepository) SelectUserIdeas(uid string, limit int) ([]models.Idea, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+
+	builder := psql.
+		Select("*").
+		From("ideas").
+		Where(sq.Eq{"author": uid}).
+		OrderBy("created_at DESC")
+
+	if limit > 0 {
+		builder = builder.Limit(uint64(limit))
+	}
+
+	q, args, err := builder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var ideas []models.Idea
+	rows, err := pg.db.Queryx(q, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var idea models.Idea
+		if err := rows.StructScan(&idea); err != nil {
 			return nil, err
 		}
 		ideas = append(ideas, idea)
@@ -187,6 +225,7 @@ func (pg *PostgresRepository) SelectIdeaComments(uid string) ([]models.Comment, 
 	var comments []models.Comment
 
 	rows, err := pg.db.Queryx(q, args...)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -213,6 +252,7 @@ func (pg *PostgresRepository) SelectCommentReplies(id int) ([]models.Reply, erro
 	var replies []models.Reply
 
 	rows, err := pg.db.Queryx(q, args...)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -239,6 +279,7 @@ func (pg *PostgresRepository) SelectIdeaCategories() ([]models.IdeaCategory, err
 	var ideaCategories []models.IdeaCategory
 
 	rows, err := pg.db.Queryx(q, args...)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -265,6 +306,7 @@ func (pg *PostgresRepository) SelectIdeaStatuses() ([]models.IdeaStatus, error) 
 	var ideaStatuses []models.IdeaStatus
 
 	rows, err := pg.db.Queryx(q, args...)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
