@@ -35,6 +35,8 @@ type IdeaStatus struct {
 
 type Idea struct {
 	IdeaUID      string    `db:"idea_uid"`
+	Name         string    `db:"name"`
+	Text         string    `db:"text"`
 	Author       string    `db:"author"`
 	CreationDate time.Time `db:"creation_date"`
 	StatusID     int       `db:"status_id"`
@@ -44,18 +46,19 @@ type Idea struct {
 }
 
 type Comment struct {
-	CommentID   int       `db:"comment_id"`
+	CommentUID  string    `db:"comment_id"`
 	IdeaUID     string    `db:"idea_uid"`
 	AuthorID    string    `db:"author_id"`
-	Timestamp   time.Time `db:"timestamp"`
 	CommentText string    `db:"comment_text"`
+	Timestamp   time.Time `db:"timestamp"`
 }
 
 type Reply struct {
-	CommentID int       `db:"comment_id"`
-	AuthorID  string    `db:"author_id"`
-	Timestamp time.Time `db:"timestamp"`
-	ReplyText string    `db:"reply_text"`
+	ReplyUID   string    `db:"reply_uid"`
+	CommentUID string    `db:"comment_id"`
+	AuthorID   string    `db:"author_id"`
+	Timestamp  time.Time `db:"timestamp"`
+	ReplyText  string    `db:"reply_text"`
 }
 
 type BrowseHistory struct {

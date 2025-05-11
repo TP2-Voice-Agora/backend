@@ -1,6 +1,7 @@
 package ideas
 
 import (
+	"github.com/google/uuid"
 	"gitlab.com/ictisagora/backend/internal/models"
 	"gitlab.com/ictisagora/backend/internal/repository"
 	"log/slog"
@@ -89,7 +90,6 @@ func (i *Ideas) GetIdeaComments(uid string) ([]models.Comment, error) {
 	log.Debug("fetching all idea comments")
 
 	ideas, err := i.repo.SelectIdeaComments(uid)
-
 	if err != nil {
 		log.Error("failed to fetch idea comments" + err.Error())
 		return nil, err
@@ -98,4 +98,145 @@ func (i *Ideas) GetIdeaComments(uid string) ([]models.Comment, error) {
 	log.Info("successfully fetched idea comments")
 
 	return ideas, nil
+}
+
+func (i *Ideas) GetCommentReplies(uid string) ([]models.Reply, error) {
+	op := "IdeasGetCommentReplies"
+	log := i.log.With(
+		slog.String("op", op),
+		slog.String("uid", uid),
+	)
+	log.Debug("fetching all idea replies")
+
+	replies, err := i.repo.SelectCommentReplies(uid)
+	if err != nil {
+		log.Error("failed to fetch idea replies" + err.Error())
+		return nil, err
+	}
+
+	log.Info("successfully fetched comment replies")
+
+	return replies, nil
+}
+
+func (i *Ideas) InsertIdea(name, text, author string, status, category int) (models.Idea, error) {
+	op := "IdeasInsertIdea"
+	log := i.log.With(slog.String("op", op),
+		slog.String("name", name),
+	)
+	log.Debug("inserting idea")
+
+	if name == "" {
+		log.Error("idea name is null")
+		return models.Idea{}, nil
+	}
+	if text == "" {
+		log.Error("idea text is null")
+		return models.Idea{}, nil
+	}
+	if author == "" {
+		log.Error("idea author is null")
+		return models.Idea{}, nil
+	}
+
+	ideaUID := uuid.New().String()
+
+	//timestamp - in PSQL
+	idea := models.Idea{
+		IdeaUID:    ideaUID,
+		Name:       name,
+		Text:       text,
+		Author:     author,
+		StatusID:   status,
+		CategoryID: category,
+	}
+
+	err := i.repo.InsertIdea(idea)
+	if err != nil {
+		log.Error("failed to insert idea" + err.Error())
+		return models.Idea{}, err
+	}
+
+	log.Info("successfully inserted idea, UUID:" + idea.IdeaUID)
+	return idea, nil
+}
+
+func (i *Ideas) InsertComment(ideaUID, authorUID, commentText string) (models.Comment, error) {
+	op := "IdeasInsertComment"
+	log := i.log.With(slog.String("op", op),
+		slog.String("ideaUID", ideaUID),
+	)
+	log.Debug("inserting comment")
+
+	if ideaUID == "" {
+		log.Error("ideaUID is null")
+		return models.Comment{}, nil
+	}
+	if authorUID == "" {
+		log.Error("authorUID is null")
+		return models.Comment{}, nil
+	}
+	if commentText == "" {
+		log.Error("commentText is null")
+		return models.Comment{}, nil
+	}
+
+	commentUID := uuid.New().String()
+
+	//timestamp - in PSQL
+	comment := models.Comment{
+		CommentUID:  commentUID,
+		IdeaUID:     ideaUID,
+		CommentText: commentText,
+	}
+
+	err := i.repo.InsertIdeaComment(comment)
+	if err != nil {
+		log.Error("failed to insert comment" + err.Error())
+		return models.Comment{}, err
+	}
+
+	log.Info("successfully inserted comment, UUID:" + comment.CommentUID)
+
+	return comment, nil
+}
+
+func (i *Ideas) InsertReply(commentUID, authorID, replyText string) (models.Reply, error) {
+	op := "IdeasInsertReply"
+	log := i.log.With(slog.String("op", op),
+		slog.String("commentUID", commentUID),
+	)
+	log.Debug("inserting reply")
+
+	if commentUID == "" {
+		log.Error("commentUID is null")
+		return models.Reply{}, nil
+	}
+	if authorID == "" {
+		log.Error("AuthorID is null")
+		return models.Reply{}, nil
+	}
+	if replyText == "" {
+		log.Error("ReplyText is null")
+		return models.Reply{}, nil
+	}
+
+	replyUID := uuid.New().String()
+
+	reply := models.Reply{
+		ReplyUID:   replyUID,
+		CommentUID: commentUID,
+		AuthorID:   authorID,
+		ReplyText:  replyText,
+	}
+
+	err := i.repo.InsertCommentReply(reply)
+	if err != nil {
+		log.Error("failed to insert reply" + err.Error())
+		return models.Reply{}, err
+	}
+
+	log.Info("successfully inserted reply, UUID:" + reply.ReplyUID)
+
+	return reply, nil
 }

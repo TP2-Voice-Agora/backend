@@ -10,7 +10,7 @@ CREATE TABLE users (
                        position_id INT,
                        email VARCHAR(35),
                        phone VARCHAR(10), -- без +7/8
-                       hire_date DATE,
+                       hire_date TIMESTAMP,
                        last_online TIMESTAMP,
                        pfp_url TEXT,
                        is_admin BOOL DEFAULT false, --TODO change to diff service(admin panel)
@@ -31,8 +31,10 @@ CREATE TABLE idea_statuses(
 
 CREATE TABLE ideas(
                       idea_uid UUID PRIMARY KEY,
+                      name TEXT NOT NULL,
+                      text TEXT NOT NULL,
                       author UUID NOT NULL,
-                      creation_date DATE NOT NULL, --maybe change to TIMESTAMP type
+                      creation_date TIMESTAMP WITH TIME ZONE DEFAULT now(),
                       status_id INT,
                       category_id INT,
                       like_count INT DEFAULT 0,
@@ -42,10 +44,10 @@ CREATE TABLE ideas(
 );
 
 CREATE TABLE comments(
-                         comment_id SERIAL PRIMARY KEY ,
+                         comment_uid UUID PRIMARY KEY ,
                          idea_uid UUID NOT NULL,
                          author_id UUID NOT NULL,
-                         timestamp TIMESTAMP NOT NULL,
+                         timestamp TIMESTAMP WITH TIME ZONE DEFAULT now(),
                          comment_text TEXT NOT NULL,
     --TODO create reactions for comments
                          FOREIGN KEY (idea_uid) REFERENCES ideas(idea_uid) ON DELETE CASCADE,
@@ -53,11 +55,12 @@ CREATE TABLE comments(
 );
 
 CREATE TABLE replies(
-                        comment_id INT NOT NULL,
+                        reply_uid UUID PRIMARY KEY,
+                        comment_id UUID NOT NULL,
                         author_id UUID NOT NULL,
-                        timestamp TIMESTAMP NOT NULL,
+                        timestamp TIMESTAMP WITH TIME ZONE DEFAULT now(),
                         reply_text TEXT NOT NULL,
-                        FOREIGN KEY (comment_id) REFERENCES comments(comment_id) ON DELETE CASCADE,
+                        FOREIGN KEY (comment_id) REFERENCES comments(comment_uid) ON DELETE CASCADE,
                         FOREIGN KEY (author_id) REFERENCES users(uid)
 );
 

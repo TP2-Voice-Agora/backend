@@ -21,7 +21,7 @@ type Repository interface {
 	InsertIdeaComment(models.Comment) error
 	InsertCommentReply(models.Reply) error
 	SelectIdeaComments(string) ([]models.Comment, error)
-	SelectCommentReplies(int) ([]models.Reply, error)
+	SelectCommentReplies(string) ([]models.Reply, error)
 
 	SelectIdeaCategories() ([]models.IdeaCategory, error)
 	SelectIdeaStatuses() ([]models.IdeaStatus, error)

@@ -94,17 +94,18 @@ func (pg *PostgresRepository) SelectPositions() ([]models.UserPosition, error) {
 	return positions, nil
 }
 
+// Probably final
 func (pg *PostgresRepository) InsertIdea(idea models.Idea) error {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
 	q, _, err := psql.Insert("ideas").
 		Columns(
-			"idea_uid", "author", "creation_date", "status_id",
+			"idea_uid", "author", "status_id",
 			"category_id", "like_count", "dislike_count",
 		).
 		Values(
 			sq.Expr(":idea_uid"), sq.Expr(":author"), sq.Expr(":creation_date"),
-			sq.Expr(":status_id"), sq.Expr(":category_id"), sq.Expr(":like_count"), sq.Expr(":dislike_count"),
+			sq.Expr(":status_id"), sq.Expr(":like_count"), sq.Expr(":dislike_count"),
 		).ToSql()
 	if err != nil {
 		return err
@@ -201,11 +202,11 @@ func (pg *PostgresRepository) InsertCommentReply(reply models.Reply) error {
 	// expect potential problems with inserting time.Time into timestamp
 	q, _, err := psql.Insert("replies").
 		Columns(
-			"comment_id", "author_id", "timestamp", "reply_text",
+			"comment_id", "author_id", "reply_text",
 		).
 		Values(
 			sq.Expr(":comment_id"), sq.Expr(":author_id"),
-			sq.Expr(":timestamp"), sq.Expr(":reply_text"),
+			sq.Expr(":reply_text"),
 		).ToSql()
 	if err != nil {
 		return err
@@ -242,10 +243,10 @@ func (pg *PostgresRepository) SelectIdeaComments(uid string) ([]models.Comment, 
 	return comments, nil
 }
 
-func (pg *PostgresRepository) SelectCommentReplies(id int) ([]models.Reply, error) {
+func (pg *PostgresRepository) SelectCommentReplies(uid string) ([]models.Reply, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
-	q, args, err := psql.Select("*").From("replies").Where(sq.Eq{"comment_id": id}).ToSql()
+	q, args, err := psql.Select("*").From("replies").Where(sq.Eq{"comment_uid": uid}).ToSql()
 	if err != nil {
 		return nil, err
 	}
