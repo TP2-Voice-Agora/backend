@@ -58,10 +58,7 @@ func (a *Auth) Register(u models.User) error {
 	return nil
 }
 
-func (a *Auth) Login(
-	email string,
-	password string,
-) (string, error) {
+func (a *Auth) Login(email string, password string) (string, error) {
 	op := "AuthLogin"
 	log := a.log.With(
 		slog.String("op", op),
