@@ -60,6 +60,58 @@ func (i *Ideas) GetAllIdeas() ([]models.Idea, error) {
 	return ideas, nil
 }
 
+func (i *Ideas) GetIdeaByUID(uid string) (models.IdeaComment, error) {
+	op := "IdeaGetByUID"
+	log := i.log.With(
+		slog.String("op", op),
+		slog.String("uid", uid),
+	)
+
+	if uid == "" {
+		log.Error("uid is empty")
+		return models.IdeaComment{}, nil
+	}
+
+	log.Debug("fetching idea by uid")
+
+	idea, err := i.repo.SelectIdeaByUID(uid)
+	if err != nil {
+		log.Error("failed to fetch idea by uid" + err.Error())
+		return models.IdeaComment{}, err
+	}
+	log.Info("successfully fetched idea")
+	log.Info("fetching comments for idea")
+
+	comments, err := i.repo.SelectIdeaComments(idea.IdeaUID)
+	if err != nil {
+		log.Error("failed to fetch comments for idea" + err.Error())
+		return models.IdeaComment{}, err
+	}
+
+	commentsReplies := make([]models.CommentReply, len(comments))
+
+	// putting together comments and replies
+	for j, comment := range comments {
+		log.Info("fetching replies for comment")
+
+		replies, err := i.repo.SelectCommentReplies(comment.CommentUID)
+		if err != nil {
+			log.Error("failed to fetch replies for comment" + comment.CommentUID + err.Error())
+		}
+		commentsReplies[j] = models.CommentReply{
+			Comment: comment,
+			Replies: replies,
+		}
+	}
+
+	ideaComment := models.IdeaComment{
+		Idea:           idea,
+		CommentReplies: commentsReplies,
+	}
+
+	return ideaComment, nil
+}
+
 func (i *Ideas) GetAuthorIdeas(uid string, limit int) ([]models.Idea, error) {
 	op := "IdeasGetAuthorIdeas"
 	log := i.log.With(

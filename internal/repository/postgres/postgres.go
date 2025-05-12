@@ -176,6 +176,21 @@ func (pg *PostgresRepository) SelectUserIdeas(uid string, limit int) ([]models.I
 	return ideas, nil
 }
 
+func (pg *PostgresRepository) SelectIdeaByUID(uid string) (models.Idea, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	q, args, err := psql.Select("*").From("ideas").Where(sq.Eq{"idea_uid": uid}).ToSql()
+	if err != nil {
+		return models.Idea{}, err
+	}
+	var idea models.Idea
+
+	err = pg.db.QueryRowx(q, args...).Scan(&idea)
+	if err != nil {
+		return models.Idea{}, err
+	}
+	return idea, nil
+}
+
 func (pg *PostgresRepository) InsertIdeaComment(comment models.Comment) error {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	// expect potential problems with inserting time.Time into timestamp

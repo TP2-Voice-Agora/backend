@@ -17,6 +17,7 @@ type Repository interface {
 
 	InsertIdea(models.Idea) error
 	SelectIdeas() ([]models.Idea, error)
+	SelectIdeaByUID(uid string) (models.Idea, error)
 	SelectUserIdeas(string, int) ([]models.Idea, error)
 	InsertIdeaComment(models.Comment) error
 	InsertCommentReply(models.Reply) error

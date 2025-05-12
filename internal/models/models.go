@@ -45,12 +45,22 @@ type Idea struct {
 	DislikeCount int       `db:"dislike_count"`
 }
 
+type IdeaComment struct {
+	Idea           Idea
+	CommentReplies []CommentReply
+}
+
 type Comment struct {
 	CommentUID  string    `db:"comment_id"`
 	IdeaUID     string    `db:"idea_uid"`
 	AuthorID    string    `db:"author_id"`
 	CommentText string    `db:"comment_text"`
 	Timestamp   time.Time `db:"timestamp"`
+}
+
+type CommentReply struct {
+	Comment Comment
+	Replies []Reply
 }
 
 type Reply struct {
