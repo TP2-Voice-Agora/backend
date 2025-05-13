@@ -19,6 +19,8 @@ type IdeaService interface {
 	GetIdeaByUID(uid string) (models.IdeaComment, error)
 	GetAuthorIdeas(uid string, limit int) ([]models.Idea, error)
 	InsertIdea(name string, text string, author string, status int, category int) (models.Idea, error)
+	InsertComment(ideaUID, authorUID, commentText string) (models.Comment, error)
+	InsertReply(commentUID, authorID, replyText string) (models.Reply, error)
 }
 
 type AuthService interface {
@@ -34,9 +36,10 @@ type HTTPServer struct {
 }
 
 // NewHTTPServer creates and configures a new HTTPServer instance.
-func NewHTTPServer(ideaService IdeaService, log *slog.Logger) *HTTPServer {
+func NewHTTPServer(ideaService IdeaService, authService AuthService, log *slog.Logger) *HTTPServer {
 	return &HTTPServer{
 		ideaService: ideaService,
+		authService: authService,
 		log:         log,
 	}
 }
@@ -52,7 +55,7 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 		r.Use(middleware.RequestID)
 		r.Use(middleware.RealIP)
 		r.Post("/login", s.handleLogin)
-		//r.Post("/register", s.handleRegister)
+		r.Post("/register", s.handleRegister)
 	})
 
 	r.Group(func(r chi.Router) {
@@ -68,11 +71,15 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 		r.Get("/ideas", s.handleGetAllIdeas)
 		r.Get("/ideas/{uid}", s.handleGetIdeaByUID)
 		r.Post("/ideas", s.handleInsertIdea)
+		r.Post("/comments", s.handleInsertComment)
+		r.Post("/replies", s.handleInsertReply)
 	})
 
 	return r
 }
 
+// handleLogin
+// returns jwt token
 func (s *HTTPServer) handleLogin(w http.ResponseWriter, r *http.Request) {
 	type requestBody struct {
 		Email    string `json:"email"`
@@ -96,6 +103,34 @@ func (s *HTTPServer) handleLogin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(resp)
 
+}
+
+// handeRegister
+func (s *HTTPServer) handleRegister(w http.ResponseWriter, r *http.Request) {
+	type requestBody struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	var body requestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	err := s.authService.Register(models.User{
+		Email:    body.Email,
+		Password: body.Password,
+	})
+	if err != nil {
+		s.log.Error("failed to register user", slog.String("email", body.Email), slog.String("error", err.Error()))
+		http.Error(w, "Failed to register", http.StatusInternalServerError)
+		return
+	}
+
+	resp, _ := json.Marshal(map[string]string{"message": "ok"})
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(resp)
 }
 
 // handleGetIdeaCategories
@@ -174,6 +209,56 @@ func (s *HTTPServer) handleInsertIdea(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp, _ := json.Marshal(newIdea)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	_, _ = w.Write(resp)
+}
+
+func (s *HTTPServer) handleInsertComment(w http.ResponseWriter, r *http.Request) {
+	type requestBody struct {
+		IdeaUID     string `json:"ideaUID"`
+		CommentText string `json:"commentText"`
+	}
+
+	var body requestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	authorUID := r.Context().Value(mware.ContextUserUID).(string)
+
+	newComment, err := s.ideaService.InsertComment(body.IdeaUID, authorUID, body.CommentText)
+	if err != nil {
+		http.Error(w, "Failed to create comment", http.StatusInternalServerError)
+		return
+	}
+	resp, _ := json.Marshal(newComment)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	_, _ = w.Write(resp)
+
+}
+
+func (s *HTTPServer) handleInsertReply(w http.ResponseWriter, r *http.Request) {
+	type requestBody struct {
+		CommentUID string `json:"commentUID"`
+		ReplyText  string `json:"replyText"`
+	}
+
+	var body requestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	authorID := r.Context().Value(mware.ContextUserUID).(string)
+	newReply, err := s.ideaService.InsertReply(body.CommentUID, authorID, body.ReplyText)
+	if err != nil {
+		http.Error(w, "Failed to create reply", http.StatusInternalServerError)
+	}
+
+	resp, _ := json.Marshal(newReply)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	_, _ = w.Write(resp)

@@ -52,7 +52,7 @@ func (i *Ideas) GetAllIdeas() ([]models.Idea, error) {
 	ideas, err := i.repo.SelectIdeas()
 	if err != nil {
 		log.Error("failed to fetch ideas" + err.Error())
-		return nil, err
+		return []models.Idea{}, err
 	}
 
 	log.Info("successfully fetched ideas")

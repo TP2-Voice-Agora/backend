@@ -1,13 +1,13 @@
 package repository
 
 import (
-	"github.com/jmoiron/sqlx"
 	"gitlab.com/ictisagora/backend/internal/models"
+	"log/slog"
 )
 
 // Repository - interface to work with DB
 type Repository interface {
-	ConnectDB(string) (*sqlx.DB, error)
+	ConnectDB(sourceURL string, log slog.Logger) error
 	CloseConnectDB() error
 
 	InsertUser(models.User) error

@@ -5,20 +5,25 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 	"gitlab.com/ictisagora/backend/internal/models"
+	"log/slog"
 )
 
 // PostgresRepository - implements Repository interface for PostgreSQL
 type PostgresRepository struct {
-	db *sqlx.DB
+	db  *sqlx.DB
+	log slog.Logger
 }
 
 // use ConnectDB before query, and CloseConnectDB when query is finished
-func (pg *PostgresRepository) ConnectDB(sourceURL string) error {
+func (pg *PostgresRepository) ConnectDB(sourceURL string, log slog.Logger) error {
 	var err error
 	// sourceURL := "postgres://username:password@localhost:5432/database_name"
 	pg.db, err = sqlx.Connect("pgx", sourceURL)
+	pg.log = log
+	pg.log.Debug("connecting to database")
 
 	if err != nil {
+		log.Error("failed to connect to database" + err.Error())
 		return err
 	}
 	return nil
