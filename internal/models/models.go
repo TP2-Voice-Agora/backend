@@ -51,7 +51,7 @@ type IdeaComment struct {
 }
 
 type Comment struct {
-	CommentUID  string    `db:"comment_id"`
+	CommentUID  string    `db:"comment_uid"`
 	IdeaUID     string    `db:"idea_uid"`
 	AuthorID    string    `db:"author_id"`
 	CommentText string    `db:"comment_text"`

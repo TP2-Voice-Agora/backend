@@ -239,6 +239,7 @@ func (i *Ideas) InsertComment(ideaUID, authorUID, commentText string) (models.Co
 	comment := models.Comment{
 		CommentUID:  commentUID,
 		IdeaUID:     ideaUID,
+		AuthorID:    authorUID,
 		CommentText: commentText,
 	}
 

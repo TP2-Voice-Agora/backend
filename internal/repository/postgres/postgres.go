@@ -42,10 +42,10 @@ func (pg *PostgresRepository) InsertUser(user models.User) error {
 
 	q, args, err := psql.Insert("users").
 		Columns(
-			"uid", "name", "surname", "position_id", "email",
+			"uid", "password", "name", "surname", "position_id", "email",
 			"phone", "hire_date", "last_online", "pfp_url", "is_admin",
 		).Values(
-		user.UID, user.Name, user.Surname, user.PositionID, user.Email, user.Phone, user.HireDate, user.LastOnline, user.PfpURL, user.IsAdmin,
+		user.UID, user.Password, user.Name, user.Surname, user.PositionID, user.Email, user.Phone, user.HireDate, user.LastOnline, user.PfpURL, user.IsAdmin,
 	).ToSql()
 	if err != nil {
 		return err
@@ -66,7 +66,7 @@ func (pg *PostgresRepository) SelectUserByEmail(email string) (models.User, erro
 	}
 	var user models.User
 
-	err = pg.db.QueryRowx(q, args...).Scan(&user)
+	err = pg.db.QueryRowx(q, args...).StructScan(&user)
 
 	return user, err
 }
@@ -105,12 +105,12 @@ func (pg *PostgresRepository) InsertIdea(idea models.Idea) error {
 
 	q, _, err := psql.Insert("ideas").
 		Columns(
-			"idea_uid", "author", "status_id",
-			"category_id", "like_count", "dislike_count",
+			"idea_uid", "name", "text", "author", "status_id",
+			"category_id",
 		).
 		Values(
-			sq.Expr(":idea_uid"), sq.Expr(":author"), sq.Expr(":creation_date"),
-			sq.Expr(":status_id"), sq.Expr(":like_count"), sq.Expr(":dislike_count"),
+			sq.Expr(":idea_uid"), sq.Expr(":name"), sq.Expr(":text"), sq.Expr(":author"), sq.Expr(":status_id"),
+			sq.Expr(":category_id"),
 		).ToSql()
 	if err != nil {
 		return err
@@ -189,7 +189,7 @@ func (pg *PostgresRepository) SelectIdeaByUID(uid string) (models.Idea, error) {
 	}
 	var idea models.Idea
 
-	err = pg.db.QueryRowx(q, args...).Scan(&idea)
+	err = pg.db.QueryRowx(q, args...).StructScan(&idea)
 	if err != nil {
 		return models.Idea{}, err
 	}
@@ -201,12 +201,12 @@ func (pg *PostgresRepository) InsertIdeaComment(comment models.Comment) error {
 	// expect potential problems with inserting time.Time into timestamp
 	q, _, err := psql.Insert("comments").
 		Columns(
-			"idea_uid", "author", "creation_date", "status_id",
-			"category_id", "like_count", "dislike_count",
+			"comment_uid", "idea_uid",
+			"author_id", "comment_text",
 		).
 		Values(
-			sq.Expr(":idea_uid"), sq.Expr(":author"), sq.Expr(":creation_date"),
-			sq.Expr(":status_id"), sq.Expr(":category_id"), sq.Expr(":like_count"), sq.Expr(":dislike_count"),
+			sq.Expr(":comment_uid"), sq.Expr(":idea_uid"),
+			sq.Expr(":author_id"), sq.Expr(":comment_text"),
 		).ToSql()
 	if err != nil {
 		return err
@@ -222,11 +222,11 @@ func (pg *PostgresRepository) InsertCommentReply(reply models.Reply) error {
 	// expect potential problems with inserting time.Time into timestamp
 	q, _, err := psql.Insert("replies").
 		Columns(
-			"comment_id", "author_id", "reply_text",
+			"reply_uid", "comment_id", "author_id", "reply_text",
 		).
 		Values(
-			sq.Expr(":comment_id"), sq.Expr(":author_id"),
-			sq.Expr(":reply_text"),
+			sq.Expr(":reply_uid"), sq.Expr(":comment_id"),
+			sq.Expr(":author_id"), sq.Expr(":reply_text"),
 		).ToSql()
 	if err != nil {
 		return err
@@ -266,23 +266,23 @@ func (pg *PostgresRepository) SelectIdeaComments(uid string) ([]models.Comment, 
 func (pg *PostgresRepository) SelectCommentReplies(uid string) ([]models.Reply, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
-	q, args, err := psql.Select("*").From("replies").Where(sq.Eq{"comment_uid": uid}).ToSql()
+	q, args, err := psql.Select("*").From("replies").Where(sq.Eq{"comment_id": uid}).ToSql()
 	if err != nil {
-		return nil, err
+		return []models.Reply{}, err
 	}
 	var replies []models.Reply
 
 	rows, err := pg.db.Queryx(q, args...)
 	defer rows.Close()
 	if err != nil {
-		return nil, err
+		return []models.Reply{}, err
 	}
 
 	for rows.Next() {
 		var reply models.Reply
 		err = rows.StructScan(&reply)
 		if err != nil {
-			return nil, err
+			return []models.Reply{}, err
 		}
 		replies = append(replies, reply)
 	}

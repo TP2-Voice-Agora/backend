@@ -1,18 +1,23 @@
 package main
 
 import (
-	"log"
-	"log/slog"
-	"net/http"
-	"os"
-
+	"github.com/joho/godotenv"
 	"gitlab.com/ictisagora/backend/internal/repository/postgres"
 	"gitlab.com/ictisagora/backend/internal/services/auth"
 	"gitlab.com/ictisagora/backend/internal/services/http-server"
 	"gitlab.com/ictisagora/backend/internal/services/ideas"
+	"log"
+	"log/slog"
+	"net/http"
+	"os"
+	"time"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	// Load environment
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -32,7 +37,7 @@ func main() {
 
 	// Repository
 	repo := &postgres.PostgresRepository{}
-	err := repo.ConnectDB(dbURL, *logger)
+	err = repo.ConnectDB(dbURL, *logger)
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
@@ -41,7 +46,7 @@ func main() {
 
 	// Services
 	ideaService := ideas.New(*logger, repo)
-	authService := auth.New(logger, repo, 10*60, jwtSecret)
+	authService := auth.New(logger, repo, 2*time.Hour, jwtSecret)
 
 	// HTTP Server
 	server := http_server.NewHTTPServer(ideaService, authService, logger)

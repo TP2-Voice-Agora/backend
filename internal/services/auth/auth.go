@@ -69,7 +69,7 @@ func (a *Auth) Login(email string, password string) (string, error) {
 
 	user, err := a.repo.SelectUserByEmail(email)
 	if err != nil {
-		log.Error("user not found")
+		log.Error("error selecting user" + err.Error())
 		return "", errors.New("user not found")
 	}
 
@@ -84,4 +84,8 @@ func (a *Auth) Login(email string, password string) (string, error) {
 	token := jwt.NewToken(user, a.tokenTTL, a.jwtSecret)
 
 	return token, nil
+}
+
+func (a *Auth) GetJWT() string {
+	return a.jwtSecret
 }

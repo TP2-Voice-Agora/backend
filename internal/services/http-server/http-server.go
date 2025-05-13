@@ -26,6 +26,7 @@ type IdeaService interface {
 type AuthService interface {
 	Register(u models.User) error
 	Login(email string, password string) (string, error)
+	GetJWT() string
 }
 
 // HTTPServer encapsulates the server dependencies and routes.
@@ -59,7 +60,7 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 	})
 
 	r.Group(func(r chi.Router) {
-		r.Use(mware.AuthMiddleware("dsdas"))
+		r.Use(mware.AuthMiddleware(s.authService.GetJWT(), s.log))
 
 		r.Use(middleware.Logger)
 		r.Use(middleware.Recoverer)
@@ -87,6 +88,7 @@ func (s *HTTPServer) handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	var body requestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		s.log.Error("failed to decode request body", slog.String("error", err.Error()))
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
@@ -108,8 +110,11 @@ func (s *HTTPServer) handleLogin(w http.ResponseWriter, r *http.Request) {
 // handeRegister
 func (s *HTTPServer) handleRegister(w http.ResponseWriter, r *http.Request) {
 	type requestBody struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		Email      string `json:"email"`
+		Password   string `json:"password"`
+		PositionID int    `json:"positionID"`
+		Name       string `json:"name"`
+		Surname    string `json:"surname"`
 	}
 	var body requestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -118,8 +123,11 @@ func (s *HTTPServer) handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := s.authService.Register(models.User{
-		Email:    body.Email,
-		Password: body.Password,
+		Email:      body.Email,
+		Password:   body.Password,
+		PositionID: body.PositionID,
+		Name:       body.Name,
+		Surname:    body.Surname,
 	})
 	if err != nil {
 		s.log.Error("failed to register user", slog.String("email", body.Email), slog.String("error", err.Error()))
@@ -195,6 +203,7 @@ func (s *HTTPServer) handleInsertIdea(w http.ResponseWriter, r *http.Request) {
 
 	var body requestBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		s.log.Error("failed to decode request body", slog.String("error", err.Error()))
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}

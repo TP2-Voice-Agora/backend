@@ -3,6 +3,7 @@ package mware
 import (
 	"context"
 	"gitlab.com/ictisagora/backend/internal/lib/jwt"
+	"log/slog"
 	"net/http"
 	"strings"
 )
@@ -15,11 +16,12 @@ const (
 	ContextUserEmail contextKey = "userEmail"
 )
 
-func AuthMiddleware(jwtSecret string) func(http.Handler) http.Handler {
+func AuthMiddleware(jwtSecret string, log *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
 			if !strings.HasPrefix(authHeader, "Bearer ") {
+				log.Error("No authorization header found" + authHeader)
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}
@@ -31,6 +33,7 @@ func AuthMiddleware(jwtSecret string) func(http.Handler) http.Handler {
 
 			uid, email, err := jwt.ParseToken(token, jwtSecret)
 			if err != nil {
+				log.Error("Failed to parse token", slog.String("error", err.Error()))
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}
