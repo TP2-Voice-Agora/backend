@@ -27,4 +27,6 @@ type Repository interface {
 
 	SelectIdeaCategories() ([]models.IdeaCategory, error)
 	SelectIdeaStatuses() ([]models.IdeaStatus, error)
+
+	UpdateUserPfpURL(uid string, url string) error
 }

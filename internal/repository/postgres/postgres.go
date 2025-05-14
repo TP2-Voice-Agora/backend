@@ -357,3 +357,18 @@ func (pg *PostgresRepository) SelectIdeaStatuses() ([]models.IdeaStatus, error) 
 
 	return ideaStatuses, nil
 }
+
+func (pg *PostgresRepository) UpdateUserPfpURL(uid string, url string) error {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+
+	q, args, err := psql.Update("users").
+		Set("pfp_url", url).
+		Where(sq.Eq{"uid": uid}).
+		ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = pg.db.Exec(q, args...)
+	return err
+}

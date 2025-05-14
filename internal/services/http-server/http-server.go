@@ -42,6 +42,7 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 		r.Use(middleware.RealIP)
 		r.Post("/login", s.handleLogin)
 		r.Post("/register", s.handleRegister)
+		r.Handle("/uploads/*", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
 	})
 
 	r.Group(func(r chi.Router) {
@@ -54,11 +55,16 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 
 		r.Get("/ideas/categories", s.handleGetIdeaCategories)
 		r.Get("/ideas/statuses", s.handleGetIdeaStatuses)
+
 		r.Get("/ideas", s.handleGetAllIdeas)
 		r.Get("/ideas/{uid}", s.handleGetIdeaByUID)
 		r.Post("/ideas", s.handleInsertIdea)
+
 		r.Post("/comments", s.handleInsertComment)
 		r.Post("/replies", s.handleInsertReply)
+
+		r.Get("/users/{uid}", s.handleGetUser)
+		r.Post("/users/pfp", s.handleUploadUserPFP)
 	})
 
 	return r
@@ -67,6 +73,11 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 // handleLogin
 // returns jwt token
 func (s *HTTPServer) handleLogin(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+
 	type requestBody struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -94,6 +105,11 @@ func (s *HTTPServer) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 // handeRegister
 func (s *HTTPServer) handleRegister(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+
 	type requestBody struct {
 		Email      string `json:"email"`
 		Password   string `json:"password"`
@@ -129,6 +145,11 @@ func (s *HTTPServer) handleRegister(w http.ResponseWriter, r *http.Request) {
 // handleGetIdeaCategories
 // returns []models.IdeaCategory
 func (s *HTTPServer) handleGetIdeaCategories(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+
 	categories := s.ideaService.GetIdeaCategories()
 	resp, _ := json.Marshal(categories)
 	w.Header().Set("Content-Type", "application/json")
@@ -138,6 +159,11 @@ func (s *HTTPServer) handleGetIdeaCategories(w http.ResponseWriter, r *http.Requ
 // handleGetIdeaStatuses
 // returns []models.IdeaStatus
 func (s *HTTPServer) handleGetIdeaStatuses(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+
 	statuses := s.ideaService.GetIdeaStatuses()
 	resp, _ := json.Marshal(statuses)
 	w.Header().Set("Content-Type", "application/json")
@@ -147,6 +173,7 @@ func (s *HTTPServer) handleGetIdeaStatuses(w http.ResponseWriter, r *http.Reques
 // handleGetAllIdeas
 // returns models.Ideas
 func (s *HTTPServer) handleGetAllIdeas(w http.ResponseWriter, r *http.Request) {
+
 	ideas, err := s.ideaService.GetAllIdeas()
 	if err != nil {
 		http.Error(w, "Failed to get ideas", http.StatusInternalServerError)
@@ -161,6 +188,11 @@ func (s *HTTPServer) handleGetAllIdeas(w http.ResponseWriter, r *http.Request) {
 // handleGetIdeaByUID
 // return models.IdeaComment
 func (s *HTTPServer) handleGetIdeaByUID(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+
 	uid := chi.URLParam(r, "uid")
 
 	ideaComment, err := s.ideaService.GetIdeaByUID(uid)
@@ -209,6 +241,11 @@ func (s *HTTPServer) handleInsertIdea(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *HTTPServer) handleInsertComment(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+
 	type requestBody struct {
 		IdeaUID     string `json:"ideaUID"`
 		CommentText string `json:"commentText"`
@@ -235,6 +272,11 @@ func (s *HTTPServer) handleInsertComment(w http.ResponseWriter, r *http.Request)
 }
 
 func (s *HTTPServer) handleInsertReply(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+
 	type requestBody struct {
 		CommentUID string `json:"commentUID"`
 		ReplyText  string `json:"replyText"`
@@ -255,5 +297,49 @@ func (s *HTTPServer) handleInsertReply(w http.ResponseWriter, r *http.Request) {
 	resp, _ := json.Marshal(newReply)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	_, _ = w.Write(resp)
+}
+
+func (s *HTTPServer) handleGetUser(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+	uid := chi.URLParam(r, "uid")
+
+	user, err := s.userService.GetUserByUID(uid)
+	if err != nil {
+		http.Error(w, "Failed to get user", http.StatusInternalServerError)
+	}
+
+	resp, _ := json.Marshal(user)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(resp)
+}
+
+func (s *HTTPServer) handleUploadUserPFP(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	file, header, err := r.FormFile("profile_picture")
+	if err != nil {
+		http.Error(w, "No file uploaded", http.StatusBadRequest)
+	}
+	defer file.Close()
+
+	userUID := r.Context().Value(mware.ContextUserUID).(string)
+
+	url, err := s.userService.UploadPFP(file, header, userUID)
+	if err != nil {
+		s.log.Error("failed to upload user profile", slog.String("error", err.Error()))
+		http.Error(w, "Failed to upload file", http.StatusInternalServerError)
+	}
+
+	resp, _ := json.Marshal(map[string]string{"url": url})
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(resp)
 }

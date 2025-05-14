@@ -21,6 +21,7 @@ func (m *MockRepository) InsertUser(u models.User) error                    { re
 func (m *MockRepository) SelectUserByEmail(string) (models.User, error)     { return models.User{}, nil }
 func (m *MockRepository) SelectPositions() ([]models.UserPosition, error)   { return nil, nil }
 func (m *MockRepository) SelectUserByUID(uid string) (models.User, error)   { return models.User{}, nil }
+func (m *MockRepository) UpdateUserPfpURL(uid string, url string) error     { return nil }
 func (m *MockRepository) InsertIdea(idea models.Idea) error {
 	args := m.Called(idea)
 	return args.Error(0)

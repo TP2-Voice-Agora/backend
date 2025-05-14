@@ -1,6 +1,9 @@
 package interfaces
 
-import "gitlab.com/ictisagora/backend/internal/models"
+import (
+	"gitlab.com/ictisagora/backend/internal/models"
+	"mime/multipart"
+)
 
 type IdeaService interface {
 	GetIdeaCategories() []models.IdeaCategory
@@ -21,4 +24,5 @@ type AuthService interface {
 
 type UserService interface {
 	GetUserByUID(uid string) (models.User, error)
+	UploadPFP(file multipart.File, header *multipart.FileHeader, UID string) (string, error)
 }

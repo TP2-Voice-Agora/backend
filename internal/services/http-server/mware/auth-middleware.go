@@ -46,7 +46,7 @@ func AuthMiddleware(jwtSecret string, log *slog.Logger, s i.UserService) func(ht
 			}
 
 			if u.ReAuth == true {
-				log.Warn("User re-auth, token will be rest", slog.String("uid", uid), slog.String("email", email))
+				log.Warn("User re-auth, token will be reset", slog.String("uid", uid), slog.String("email", email))
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}

@@ -9,7 +9,7 @@ RUN go mod download
 
 COPY . .    
 
-RUN go build -o main /app
+RUN go build -o main ./app
 
 EXPOSE PORT 8080
 
