@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/joho/godotenv"
+	"gitlab.com/ictisagora/backend/internal/lib/logger/prettyslog"
 	"gitlab.com/ictisagora/backend/internal/repository/postgres"
 	"gitlab.com/ictisagora/backend/internal/services/auth"
 	"gitlab.com/ictisagora/backend/internal/services/http-server"
@@ -33,7 +34,7 @@ func main() {
 	}
 
 	// Logger
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	logger := prettyslog.New()
 
 	// Repository
 	repo := &postgres.PostgresRepository{}

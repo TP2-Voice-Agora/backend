@@ -3,12 +3,12 @@ package mware
 import (
 	"context"
 	"gitlab.com/ictisagora/backend/internal/lib/jwt"
+	i "gitlab.com/ictisagora/backend/internal/services/interfaces"
 	"log/slog"
 	"net/http"
 	"strings"
 )
 
-// Определим типы ключей для контекста:
 type contextKey string
 
 const (
@@ -16,7 +16,7 @@ const (
 	ContextUserEmail contextKey = "userEmail"
 )
 
-func AuthMiddleware(jwtSecret string, log *slog.Logger) func(http.Handler) http.Handler {
+func AuthMiddleware(jwtSecret string, log *slog.Logger, s i.UserService) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -33,7 +33,20 @@ func AuthMiddleware(jwtSecret string, log *slog.Logger) func(http.Handler) http.
 
 			uid, email, err := jwt.ParseToken(token, jwtSecret)
 			if err != nil {
+
 				log.Error("Failed to parse token", slog.String("error", err.Error()))
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
+
+			u, err := s.GetUserByUID(uid)
+			if err != nil {
+				log.Error("Failed to get user by uid", slog.String("error", err.Error()))
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			}
+
+			if u.ReAuth == true {
+				log.Warn("User re-auth, token will be rest", slog.String("uid", uid), slog.String("email", email))
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}

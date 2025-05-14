@@ -3,7 +3,6 @@ package ideas
 import (
 	"errors"
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"gitlab.com/ictisagora/backend/internal/models"
@@ -16,11 +15,12 @@ type MockRepository struct {
 	mock.Mock
 }
 
-func (m *MockRepository) ConnectDB(s string) (*sqlx.DB, error)            { return nil, nil }
-func (m *MockRepository) CloseConnectDB() error                           { return nil }
-func (m *MockRepository) InsertUser(u models.User) error                  { return nil }
-func (m *MockRepository) SelectUserByEmail(string) (models.User, error)   { return models.User{}, nil }
-func (m *MockRepository) SelectPositions() ([]models.UserPosition, error) { return nil, nil }
+func (m *MockRepository) ConnectDB(sourceURL string, log slog.Logger) error { return nil }
+func (m *MockRepository) CloseConnectDB() error                             { return nil }
+func (m *MockRepository) InsertUser(u models.User) error                    { return nil }
+func (m *MockRepository) SelectUserByEmail(string) (models.User, error)     { return models.User{}, nil }
+func (m *MockRepository) SelectPositions() ([]models.UserPosition, error)   { return nil, nil }
+func (m *MockRepository) SelectUserByUID(uid string) (models.User, error)   { return models.User{}, nil }
 func (m *MockRepository) InsertIdea(idea models.Idea) error {
 	args := m.Called(idea)
 	return args.Error(0)

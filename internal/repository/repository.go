@@ -12,6 +12,7 @@ type Repository interface {
 
 	InsertUser(models.User) error
 	SelectUserByEmail(string) (models.User, error)
+	SelectUserByUID(uid string) (models.User, error)
 
 	SelectPositions() ([]models.UserPosition, error)
 

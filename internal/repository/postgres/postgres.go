@@ -14,7 +14,7 @@ type PostgresRepository struct {
 	log slog.Logger
 }
 
-// use ConnectDB before query, and CloseConnectDB when query is finished
+// use ConnectDB before query, and CloseConnectDB when a query is finished
 func (pg *PostgresRepository) ConnectDB(sourceURL string, log slog.Logger) error {
 	var err error
 	// sourceURL := "postgres://username:password@localhost:5432/database_name"
@@ -71,7 +71,21 @@ func (pg *PostgresRepository) SelectUserByEmail(email string) (models.User, erro
 	return user, err
 }
 
-// SelectPositions selects all job positions into slice, then returns it
+func (pg *PostgresRepository) SelectUserByUID(uid string) (models.User, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+
+	q, args, err := psql.Select("*").From("users").Where(sq.Eq{"uid": uid}).ToSql()
+	if err != nil {
+		return models.User{}, err
+	}
+	var user models.User
+
+	err = pg.db.QueryRowx(q, args...).StructScan(&user)
+
+	return user, err
+}
+
+// SelectPositions selects all job positions into a slice, then returns it
 func (pg *PostgresRepository) SelectPositions() ([]models.UserPosition, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
@@ -202,11 +216,11 @@ func (pg *PostgresRepository) InsertIdeaComment(comment models.Comment) error {
 	q, _, err := psql.Insert("comments").
 		Columns(
 			"comment_uid", "idea_uid",
-			"author_id", "comment_text",
+			"author_uid", "comment_text",
 		).
 		Values(
 			sq.Expr(":comment_uid"), sq.Expr(":idea_uid"),
-			sq.Expr(":author_id"), sq.Expr(":comment_text"),
+			sq.Expr(":author_uid"), sq.Expr(":comment_text"),
 		).ToSql()
 	if err != nil {
 		return err
@@ -222,11 +236,11 @@ func (pg *PostgresRepository) InsertCommentReply(reply models.Reply) error {
 	// expect potential problems with inserting time.Time into timestamp
 	q, _, err := psql.Insert("replies").
 		Columns(
-			"reply_uid", "comment_id", "author_id", "reply_text",
+			"reply_uid", "comment_uid", "author_uid", "reply_text",
 		).
 		Values(
-			sq.Expr(":reply_uid"), sq.Expr(":comment_id"),
-			sq.Expr(":author_id"), sq.Expr(":reply_text"),
+			sq.Expr(":reply_uid"), sq.Expr(":comment_uid"),
+			sq.Expr(":author_uid"), sq.Expr(":reply_text"),
 		).ToSql()
 	if err != nil {
 		return err
@@ -266,7 +280,7 @@ func (pg *PostgresRepository) SelectIdeaComments(uid string) ([]models.Comment, 
 func (pg *PostgresRepository) SelectCommentReplies(uid string) ([]models.Reply, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
-	q, args, err := psql.Select("*").From("replies").Where(sq.Eq{"comment_id": uid}).ToSql()
+	q, args, err := psql.Select("*").From("replies").Where(sq.Eq{"comment_uid": uid}).ToSql()
 	if err != nil {
 		return []models.Reply{}, err
 	}

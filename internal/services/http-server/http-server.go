@@ -5,42 +5,27 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"gitlab.com/ictisagora/backend/internal/models"
 	"gitlab.com/ictisagora/backend/internal/services/http-server/mware"
+	i "gitlab.com/ictisagora/backend/internal/services/interfaces"
 	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 )
 
-// IdeaService is a placeholder interface representing your business logic layer.
-type IdeaService interface {
-	GetIdeaCategories() []models.IdeaCategory
-	GetIdeaStatuses() []models.IdeaStatus
-	GetAllIdeas() ([]models.Idea, error)
-	GetIdeaByUID(uid string) (models.IdeaComment, error)
-	GetAuthorIdeas(uid string, limit int) ([]models.Idea, error)
-	InsertIdea(name string, text string, author string, status int, category int) (models.Idea, error)
-	InsertComment(ideaUID, authorUID, commentText string) (models.Comment, error)
-	InsertReply(commentUID, authorID, replyText string) (models.Reply, error)
-}
-
-type AuthService interface {
-	Register(u models.User) error
-	Login(email string, password string) (string, error)
-	GetJWT() string
-}
-
 // HTTPServer encapsulates the server dependencies and routes.
 type HTTPServer struct {
-	ideaService IdeaService
-	authService AuthService
+	ideaService i.IdeaService
+	authService i.AuthService
+	userService i.UserService
 	log         *slog.Logger
 }
 
 // NewHTTPServer creates and configures a new HTTPServer instance.
-func NewHTTPServer(ideaService IdeaService, authService AuthService, log *slog.Logger) *HTTPServer {
+func NewHTTPServer(ideaService i.IdeaService, authService i.AuthService, userService i.UserService, log *slog.Logger) *HTTPServer {
 	return &HTTPServer{
 		ideaService: ideaService,
 		authService: authService,
+		userService: userService,
 		log:         log,
 	}
 }
@@ -60,7 +45,7 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 	})
 
 	r.Group(func(r chi.Router) {
-		r.Use(mware.AuthMiddleware(s.authService.GetJWT(), s.log))
+		r.Use(mware.AuthMiddleware(s.authService.GetJWT(), s.log, s.userService))
 
 		r.Use(middleware.Logger)
 		r.Use(middleware.Recoverer)
