@@ -12,13 +12,13 @@ import (
 )
 
 type Auth struct {
-	log       *slog.Logger
+	log       slog.Logger
 	repo      repository.Repository
 	tokenTTL  time.Duration
 	jwtSecret string
 }
 
-func New(log *slog.Logger, repo repository.Repository, tokenTTL time.Duration, jwtSecret string) *Auth {
+func New(log slog.Logger, repo repository.Repository, tokenTTL time.Duration, jwtSecret string) *Auth {
 	return &Auth{
 		log:       log,
 		repo:      repo,

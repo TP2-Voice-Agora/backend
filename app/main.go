@@ -7,6 +7,7 @@ import (
 	"gitlab.com/ictisagora/backend/internal/services/auth"
 	"gitlab.com/ictisagora/backend/internal/services/http-server"
 	"gitlab.com/ictisagora/backend/internal/services/ideas"
+	"gitlab.com/ictisagora/backend/internal/services/users"
 	"log"
 	"log/slog"
 	"net/http"
@@ -47,10 +48,11 @@ func main() {
 
 	// Services
 	ideaService := ideas.New(*logger, repo)
-	authService := auth.New(logger, repo, 2*time.Hour, jwtSecret)
+	authService := auth.New(*logger, repo, 2*time.Hour, jwtSecret)
+	userService := users.New(*logger, repo)
 
 	// HTTP Server
-	server := http_server.NewHTTPServer(ideaService, authService, logger)
+	server := http_server.NewHTTPServer(ideaService, authService, userService, logger)
 	handler := server.SetupRoutes()
 
 	logger.Info("Server starting...", slog.String("port", port))

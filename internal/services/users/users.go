@@ -12,6 +12,13 @@ type Users struct {
 	repo repository.Repository
 }
 
+func New(log slog.Logger, repo repository.Repository) *Users {
+	return &Users{
+		log:  log,
+		repo: repo,
+	}
+}
+
 func (u *Users) GetUserByUID(UID string) (models.User, error) {
 	op := "GetUserByUID"
 	log := u.log.With(
