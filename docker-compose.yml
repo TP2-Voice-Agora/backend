@@ -1,13 +1,11 @@
-version: '3.8'
-
 services:
   postgresdb:
     image: postgres:15
     restart: always
     environment:
-      POSTGRES_USER: ffokildam
-      POSTGRES_PASSWORD: yourpassword
-      POSTGRES_DB: ideadb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: dbname
     ports:
       - "5432:5432"
     volumes:
@@ -18,7 +16,9 @@ services:
     depends_on:
       - postgresdb
     environment:
-      DATABASE_URL: "host=postgresdb user=ffokildam password=yourpassword dbname=ideadb sslmode=disable"
+      - DATABASE_URL=postgres://user:pass@address:port/dbname
+      - JWT_SECRET=dsada12123dsdas12123
+      - PORT=8080
     ports:
       - "8080:8080"
     networks:
