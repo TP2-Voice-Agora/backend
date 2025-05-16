@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/joho/godotenv"
+	_ "github.com/joho/godotenv"
 	"gitlab.com/ictisagora/backend/internal/lib/logger/prettyslog"
 	"gitlab.com/ictisagora/backend/internal/repository/postgres"
 	"gitlab.com/ictisagora/backend/internal/services/auth"
@@ -16,10 +16,10 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	//err := godotenv.Load()
+	//if err != nil {
+	//	log.Fatal("Error loading .env file")
+	//}
 	// Load environment
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -39,7 +39,7 @@ func main() {
 
 	// Repository
 	repo := &postgres.PostgresRepository{}
-	err = repo.ConnectDB(dbURL, *logger)
+	err := repo.ConnectDB(dbURL, *logger)
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}

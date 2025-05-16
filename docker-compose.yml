@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  postgresdb:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ffokildam
+      POSTGRES_PASSWORD: yourpassword
+      POSTGRES_DB: ideadb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  agorabackend:
+    image: agoraback
+    depends_on:
+      - postgresdb
+    environment:
+      DATABASE_URL: "host=postgresdb user=ffokildam password=yourpassword dbname=ideadb sslmode=disable"
+    ports:
+      - "8080:8080"
+    networks:
+      - backendnet
+
+volumes:
+  pgdata:
+
+networks:
+  backendnet:
