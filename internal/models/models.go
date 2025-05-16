@@ -76,3 +76,34 @@ type BrowseHistory struct {
 	VisitorID string `db:"visitor_uid"`
 	IdeaID    string `db:"idea_uid"`
 }
+
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type RegisterRequest struct {
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	PositionID int    `json:"positionID"`
+	Name       string `json:"name"`
+	Surname    string `json:"surname"`
+}
+
+type InsertIdeaRequest struct {
+	Name     string `json:"name"`
+	Text     string `json:"text"`
+	Author   string `json:"author"`
+	Status   int    `json:"status"`
+	Category int    `json:"category"`
+}
+
+type InsertCommentRequest struct {
+	IdeaUID     string `json:"ideaUID"`
+	CommentText string `json:"commentText"`
+}
+
+type InsertReplyRequest struct {
+	CommentUID string `json:"commentUID"`
+	ReplyText  string `json:"replyText"`
+}

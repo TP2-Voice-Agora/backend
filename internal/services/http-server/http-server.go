@@ -10,6 +10,9 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+
+	httpSwagger "github.com/swaggo/http-swagger"
+	_ "gitlab.com/ictisagora/backend/docs" // путь, куда будет генерироваться swagger doc
 )
 
 // HTTPServer encapsulates the server dependencies and routes.
@@ -43,6 +46,7 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 		r.Post("/login", s.handleLogin)
 		r.Post("/register", s.handleRegister)
 		r.Handle("/uploads/*", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
+		r.Get("/swagger/*", httpSwagger.WrapHandler)
 	})
 
 	r.Group(func(r chi.Router) {
@@ -71,18 +75,24 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 }
 
 // handleLogin
-// returns jwt token
+// @Summary      Аутентификация
+// @Description  Аутентификация, возвращает jwt токен, который прикладывается ко всем (secure) рутам.
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        loginRequest  body  models.LoginRequest true  "Login data"
+// @Success      200  {string}  string  "JWT token"
+// @Failure      400  {string}  string  "Bad request"
+// @Failure      405  {string}  string  "Invalid method"
+// @Failure      500  {string}  string  "Failed to login"
+// @Router       /login [post]
 func (s *HTTPServer) handleLogin(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 		return
 	}
 
-	type requestBody struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-	var body requestBody
+	var body models.LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		s.log.Error("failed to decode request body", slog.String("error", err.Error()))
 		http.Error(w, "Bad request", http.StatusBadRequest)
@@ -103,21 +113,25 @@ func (s *HTTPServer) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// handeRegister
+// handleRegister
+// @Summary      Регистрация
+// @Description  Регистрация - будет только в админке
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        registerRequest  body  models.RegisterRequest true "Register data"
+// @Success      200  {object}  map[string]string  "message: ok"
+// @Failure      400  {string}  string  "Bad request"
+// @Failure      405  {string}  string  "Invalid method"
+// @Failure      500  {string}  string  "Failed to register"
+// @Router       /register [post]
 func (s *HTTPServer) handleRegister(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 		return
 	}
 
-	type requestBody struct {
-		Email      string `json:"email"`
-		Password   string `json:"password"`
-		PositionID int    `json:"positionID"`
-		Name       string `json:"name"`
-		Surname    string `json:"surname"`
-	}
-	var body requestBody
+	var body models.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
@@ -143,7 +157,14 @@ func (s *HTTPServer) handleRegister(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleGetIdeaCategories
-// returns []models.IdeaCategory
+// @Summary      Категории идей(secure)
+// @Description  Ручка категорий идей, в теории дергается один раз при первой загрузке страницы,
+// так как никогда не обновляется
+// @Tags         ideas
+// @Produce      json
+// @Success      200  {array}   models.IdeaCategory
+// @Failure      405  {string}  string  "Invalid method"
+// @Router       /ideas/categories [get]
 func (s *HTTPServer) handleGetIdeaCategories(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
@@ -157,7 +178,14 @@ func (s *HTTPServer) handleGetIdeaCategories(w http.ResponseWriter, r *http.Requ
 }
 
 // handleGetIdeaStatuses
-// returns []models.IdeaStatus
+// @Summary      Статусы идей(secure)
+// @Description  Ручка статусов идей, в теории дергается один раз при первой загрузке страницы,
+// // так как никогда не обновляется
+// @Tags         ideas
+// @Produce      json
+// @Success      200  {array}   models.IdeaStatus
+// @Failure      405  {string}  string  "Invalid method"
+// @Router       /ideas/statuses [get]
 func (s *HTTPServer) handleGetIdeaStatuses(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
@@ -171,7 +199,13 @@ func (s *HTTPServer) handleGetIdeaStatuses(w http.ResponseWriter, r *http.Reques
 }
 
 // handleGetAllIdeas
-// returns models.Ideas
+// @Summary      Все идеи(secure)
+// @Description  Возвращает все идеи списков без комментариев\ответов.
+// @Tags         ideas
+// @Produce      json
+// @Success      200  {array}   models.Idea
+// @Failure      500  {string}  string  "Failed to get ideas"
+// @Router       /ideas [get]
 func (s *HTTPServer) handleGetAllIdeas(w http.ResponseWriter, r *http.Request) {
 
 	ideas, err := s.ideaService.GetAllIdeas()
@@ -186,7 +220,15 @@ func (s *HTTPServer) handleGetAllIdeas(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleGetIdeaByUID
-// return models.IdeaComment
+// @Summary      Конкретная идея(secure)
+// @Description  Возвращает идею по UID, уже с комментариями\ответами
+// @Tags         ideas
+// @Produce      json
+// @Param        uid   path      string  true  "Idea UID"
+// @Success      200   {object}  models.IdeaComment
+// @Failure      405   {string}  string  "Invalid method"
+// @Failure      500   {string}  string  "Failed to get idea by UID"
+// @Router       /ideas/{uid} [get]
 func (s *HTTPServer) handleGetIdeaByUID(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
@@ -206,19 +248,19 @@ func (s *HTTPServer) handleGetIdeaByUID(w http.ResponseWriter, r *http.Request) 
 	_, _ = w.Write(resp)
 }
 
-// handleInsertIdea handles creation of a new idea.
-// gets requestBody
-// returns models.Idea
+// handleInsertIdea
+// @Summary      Вставка новой идеи(secure)
+// @Description  Вставляет идею, и возвращает ее со всеми заполненными полями
+// @Tags         ideas
+// @Accept       json
+// @Produce      json
+// @Param        idea  body  models.InsertIdeaRequest true  "Idea data"
+// @Success      201  {object}  models.Idea
+// @Failure      400  {string}  string  "Bad request"
+// @Failure      500  {string}  string  "Failed to create idea"
+// @Router       /ideas [post]
 func (s *HTTPServer) handleInsertIdea(w http.ResponseWriter, r *http.Request) {
-	type requestBody struct {
-		Name     string `json:"name"`
-		Text     string `json:"text"`
-		Author   string `json:"author"`
-		Status   int    `json:"status"`
-		Category int    `json:"category"`
-	}
-
-	var body requestBody
+	var body models.InsertIdeaRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		s.log.Error("failed to decode request body", slog.String("error", err.Error()))
 		http.Error(w, "Bad request", http.StatusBadRequest)
@@ -240,18 +282,25 @@ func (s *HTTPServer) handleInsertIdea(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(resp)
 }
 
+// handleInsertComment
+// @Summary      Вставка комментария(secure)
+// @Description  Вставляет коммент и возвращает его.
+// @Tags         comments
+// @Accept       json
+// @Produce      json
+// @Param        comment body models.InsertCommentRequest true "Comment data"
+// @Success      201  {object}  models.Comment
+// @Failure      400  {string}  string  "Bad request"
+// @Failure      405  {string}  string  "Invalid method"
+// @Failure      500  {string}  string  "Failed to create comment"
+// @Router       /comments [post]
 func (s *HTTPServer) handleInsertComment(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 		return
 	}
 
-	type requestBody struct {
-		IdeaUID     string `json:"ideaUID"`
-		CommentText string `json:"commentText"`
-	}
-
-	var body requestBody
+	var body models.InsertCommentRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
@@ -271,18 +320,26 @@ func (s *HTTPServer) handleInsertComment(w http.ResponseWriter, r *http.Request)
 
 }
 
+// handleInsertReply
+// @Summary      Вставка ответа
+// @Description  Вставляет новый ответ, и возвращает его
+// @Tags         replies
+// @Accept       json
+// @Produce      json
+// @Param        reply  body  models.InsertReplyRequest true "Reply data"
+// @Security     JWTAuth
+// @Success      201  {object}  models.Reply
+// @Failure      400  {string}  string  "Bad request"
+// @Failure      405  {string}  string  "Invalid method"
+// @Failure      500  {string}  string  "Failed to create reply"
+// @Router       /replies [post]
 func (s *HTTPServer) handleInsertReply(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 		return
 	}
 
-	type requestBody struct {
-		CommentUID string `json:"commentUID"`
-		ReplyText  string `json:"replyText"`
-	}
-
-	var body requestBody
+	var body models.InsertReplyRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
@@ -300,6 +357,16 @@ func (s *HTTPServer) handleInsertReply(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(resp)
 }
 
+// handleGetUser
+// @Summary      Получение юзера по UID
+// @Description  Возвращает данные пользователя по UID.
+// @Tags         users
+// @Produce      json
+// @Param        uid   path      string  true  "User UID"
+// @Success      200   {object}  models.User
+// @Failure      405   {string}  string  "Invalid method"
+// @Failure      500   {string}  string  "Failed to get user"
+// @Router       /users/{uid} [get]
 func (s *HTTPServer) handleGetUser(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
@@ -318,6 +385,18 @@ func (s *HTTPServer) handleGetUser(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(resp)
 }
 
+// handleUploadUserPFP
+// @Summary      Загрузка PFP
+// @Description  Загрузка новой аватарки для юзера.
+// @Tags         users
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        profile_picture  formData  file  true  "Profile picture file"
+// @Success      200  {object}  map[string]string  "url to uploaded picture"
+// @Failure      400  {string}  string  "No file uploaded or bad request"
+// @Failure      405  {string}  string  "Invalid method"
+// @Failure      500  {string}  string  "Failed to upload file"
+// @Router       /users/pfp [post]
 func (s *HTTPServer) handleUploadUserPFP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
