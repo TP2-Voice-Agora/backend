@@ -1,0 +1,476 @@
+definitions:
+  models.Comment:
+    properties:
+      authorID:
+        type: string
+      commentText:
+        type: string
+      commentUID:
+        type: string
+      ideaUID:
+        type: string
+      timestamp:
+        type: string
+    type: object
+  models.CommentReply:
+    properties:
+      comment:
+        $ref: '#/definitions/models.Comment'
+      replies:
+        items:
+          $ref: '#/definitions/models.Reply'
+        type: array
+    type: object
+  models.Idea:
+    properties:
+      author:
+        type: string
+      categoryID:
+        type: integer
+      creationDate:
+        type: string
+      dislikeCount:
+        type: integer
+      ideaUID:
+        type: string
+      likeCount:
+        type: integer
+      name:
+        type: string
+      statusID:
+        type: integer
+      text:
+        type: string
+    type: object
+  models.IdeaCategory:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.IdeaComment:
+    properties:
+      commentReplies:
+        items:
+          $ref: '#/definitions/models.CommentReply'
+        type: array
+      idea:
+        $ref: '#/definitions/models.Idea'
+    type: object
+  models.IdeaStatus:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.InsertCommentRequest:
+    properties:
+      commentText:
+        type: string
+      ideaUID:
+        type: string
+    type: object
+  models.InsertIdeaRequest:
+    properties:
+      author:
+        type: string
+      category:
+        type: integer
+      name:
+        type: string
+      status:
+        type: integer
+      text:
+        type: string
+    type: object
+  models.InsertReplyRequest:
+    properties:
+      commentUID:
+        type: string
+      replyText:
+        type: string
+    type: object
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  models.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      positionID:
+        type: integer
+      surname:
+        type: string
+    type: object
+  models.Reply:
+    properties:
+      authorID:
+        type: string
+      commentUID:
+        type: string
+      replyText:
+        type: string
+      replyUID:
+        type: string
+      timestamp:
+        type: string
+    type: object
+  models.User:
+    properties:
+      email:
+        type: string
+      hireDate:
+        type: string
+      isAdmin:
+        type: boolean
+      lastOnline:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      pfpURL:
+        type: string
+      phone:
+        type: string
+      positionID:
+        type: integer
+      reAuth:
+        type: boolean
+      surname:
+        type: string
+      uid:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /comments:
+    post:
+      consumes:
+      - application/json
+      description: Вставляет коммент и возвращает его.
+      parameters:
+      - description: Comment data
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/models.InsertCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Comment'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "405":
+          description: Invalid method
+          schema:
+            type: string
+        "500":
+          description: Failed to create comment
+          schema:
+            type: string
+      summary: Вставка комментария(secure)
+      tags:
+      - comments
+  /ideas:
+    get:
+      description: Возвращает все идеи списков без комментариев\ответов.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Idea'
+            type: array
+        "500":
+          description: Failed to get ideas
+          schema:
+            type: string
+      summary: Все идеи(secure)
+      tags:
+      - ideas
+    post:
+      consumes:
+      - application/json
+      description: Вставляет идею, и возвращает ее со всеми заполненными полями
+      parameters:
+      - description: Idea data
+        in: body
+        name: idea
+        required: true
+        schema:
+          $ref: '#/definitions/models.InsertIdeaRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Idea'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Failed to create idea
+          schema:
+            type: string
+      summary: Вставка новой идеи(secure)
+      tags:
+      - ideas
+  /ideas/{uid}:
+    get:
+      description: Возвращает идею по UID, уже с комментариями\ответами
+      parameters:
+      - description: Idea UID
+        in: path
+        name: uid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.IdeaComment'
+        "405":
+          description: Invalid method
+          schema:
+            type: string
+        "500":
+          description: Failed to get idea by UID
+          schema:
+            type: string
+      summary: Конкретная идея(secure)
+      tags:
+      - ideas
+  /ideas/categories:
+    get:
+      description: Ручка категорий идей, в теории дергается один раз при первой загрузке
+        страницы,
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.IdeaCategory'
+            type: array
+        "405":
+          description: Invalid method
+          schema:
+            type: string
+      summary: Категории идей(secure)
+      tags:
+      - ideas
+  /ideas/statuses:
+    get:
+      description: Ручка статусов идей, в теории дергается один раз при первой загрузке
+        страницы,
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.IdeaStatus'
+            type: array
+        "405":
+          description: Invalid method
+          schema:
+            type: string
+      summary: Статусы идей(secure)
+      tags:
+      - ideas
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентификация, возвращает jwt токен, который прикладывается ко
+        всем (secure) рутам.
+      parameters:
+      - description: Login data
+        in: body
+        name: loginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT token
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "405":
+          description: Invalid method
+          schema:
+            type: string
+        "500":
+          description: Failed to login
+          schema:
+            type: string
+      summary: Аутентификация
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрация - будет только в админке
+      parameters:
+      - description: Register data
+        in: body
+        name: registerRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: ok'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "405":
+          description: Invalid method
+          schema:
+            type: string
+        "500":
+          description: Failed to register
+          schema:
+            type: string
+      summary: Регистрация
+      tags:
+      - auth
+  /replies:
+    post:
+      consumes:
+      - application/json
+      description: Вставляет новый ответ, и возвращает его
+      parameters:
+      - description: Reply data
+        in: body
+        name: reply
+        required: true
+        schema:
+          $ref: '#/definitions/models.InsertReplyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Reply'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "405":
+          description: Invalid method
+          schema:
+            type: string
+        "500":
+          description: Failed to create reply
+          schema:
+            type: string
+      security:
+      - JWTAuth: []
+      summary: Вставка ответа
+      tags:
+      - replies
+  /users/{uid}:
+    get:
+      description: Возвращает данные пользователя по UID.
+      parameters:
+      - description: User UID
+        in: path
+        name: uid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "405":
+          description: Invalid method
+          schema:
+            type: string
+        "500":
+          description: Failed to get user
+          schema:
+            type: string
+      summary: Получение юзера по UID
+      tags:
+      - users
+  /users/pfp:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Загрузка новой аватарки для юзера.
+      parameters:
+      - description: Profile picture file
+        in: formData
+        name: profile_picture
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: url to uploaded picture
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: No file uploaded or bad request
+          schema:
+            type: string
+        "405":
+          description: Invalid method
+          schema:
+            type: string
+        "500":
+          description: Failed to upload file
+          schema:
+            type: string
+      summary: Загрузка PFP
+      tags:
+      - users
+swagger: "2.0"
