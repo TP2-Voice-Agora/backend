@@ -38,9 +38,10 @@ func NewHTTPServer(ideaService i.IdeaService, authService i.AuthService, userSer
 // middleware.
 func (s *HTTPServer) SetupRoutes() http.Handler {
 	r := chi.NewRouter()
+	s.log.Info("Version 1.1")
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"*"}, // или конкретные: []string{"https://example.com"}
+		AllowedOrigins:   []string{"http://localhost:5173"}, // или конкретные: []string{"https://example.com"}
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
