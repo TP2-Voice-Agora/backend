@@ -3,6 +3,7 @@ package http_server
 import (
 	"encoding/json"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"gitlab.com/ictisagora/backend/internal/models"
 	"gitlab.com/ictisagora/backend/internal/services/http-server/mware"
 	i "gitlab.com/ictisagora/backend/internal/services/interfaces"
@@ -37,6 +38,15 @@ func NewHTTPServer(ideaService i.IdeaService, authService i.AuthService, userSer
 // middleware.
 func (s *HTTPServer) SetupRoutes() http.Handler {
 	r := chi.NewRouter()
+
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"*"}, // или конкретные: []string{"https://example.com"}
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Максимальный возраст CORS preflight запроса (в секундах)
+	}))
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Logger)
