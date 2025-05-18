@@ -38,15 +38,15 @@ func NewHTTPServer(ideaService i.IdeaService, authService i.AuthService, userSer
 // middleware.
 func (s *HTTPServer) SetupRoutes() http.Handler {
 	r := chi.NewRouter()
-	s.log.Info("Version 1.1")
+	s.log.Info("Version 1.2")
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173"}, // или конкретные: []string{"https://example.com"}
+		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowedHeaders:   []string{"*"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
-		MaxAge:           300, // Максимальный возраст CORS preflight запроса (в секундах)
+		MaxAge:           300,
 	}))
 
 	r.Group(func(r chi.Router) {
