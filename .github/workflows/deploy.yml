@@ -1,0 +1,50 @@
+name: Deploy to vps
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+#  test:
+#    name: Run Go tests
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@v3
+#
+#      - name: Set up Go
+#        uses: actions/setup-go@v4
+#        with:
+#          go-version: '1.21'
+#
+#      - name: Run tests
+#        run: go test ./...
+
+  deploy:
+    name: Deploy to server
+    runs-on: ubuntu-latest
+#    needs: test
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy via SSH
+        run: |
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            set -e
+            cd /backend
+            git pull origin main
+            docker-compose down
+            docker-compose build
+            docker-compose up -d
+          EOF
