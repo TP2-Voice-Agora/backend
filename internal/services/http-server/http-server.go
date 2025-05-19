@@ -17,6 +17,7 @@ import (
 )
 
 // HTTPServer encapsulates the server dependencies and routes.
+// for push
 type HTTPServer struct {
 	ideaService i.IdeaService
 	authService i.AuthService
