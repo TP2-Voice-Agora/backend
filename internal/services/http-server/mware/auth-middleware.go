@@ -2,8 +2,8 @@ package mware
 
 import (
 	"context"
-	"gitlab.com/ictisagora/backend/internal/lib/jwt"
-	i "gitlab.com/ictisagora/backend/internal/services/interfaces"
+	"github.com/TP2-Voice-Agora/backend/internal/lib/jwt"
+	i "github.com/TP2-Voice-Agora/backend/internal/services/interfaces"
 	"log/slog"
 	"net/http"
 	"strings"

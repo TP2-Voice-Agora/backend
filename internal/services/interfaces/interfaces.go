@@ -1,7 +1,7 @@
 package interfaces
 
 import (
-	"gitlab.com/ictisagora/backend/internal/models"
+	"github.com/TP2-Voice-Agora/backend/internal/models"
 	"mime/multipart"
 )
 

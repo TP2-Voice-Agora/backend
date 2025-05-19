@@ -2,18 +2,18 @@ package http_server
 
 import (
 	"encoding/json"
+	"github.com/TP2-Voice-Agora/backend/internal/models"
+	"github.com/TP2-Voice-Agora/backend/internal/services/http-server/mware"
+	i "github.com/TP2-Voice-Agora/backend/internal/services/interfaces"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"gitlab.com/ictisagora/backend/internal/models"
-	"gitlab.com/ictisagora/backend/internal/services/http-server/mware"
-	i "gitlab.com/ictisagora/backend/internal/services/interfaces"
 	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 
+	_ "github.com/TP2-Voice-Agora/backend/docs" // путь, куда будет генерироваться swagger doc
 	httpSwagger "github.com/swaggo/http-swagger"
-	_ "gitlab.com/ictisagora/backend/docs" // путь, куда будет генерироваться swagger doc
 )
 
 // HTTPServer encapsulates the server dependencies and routes.

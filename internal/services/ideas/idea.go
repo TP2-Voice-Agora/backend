@@ -1,9 +1,9 @@
 package ideas
 
 import (
+	"github.com/TP2-Voice-Agora/backend/internal/models"
+	"github.com/TP2-Voice-Agora/backend/internal/repository"
 	"github.com/google/uuid"
-	"gitlab.com/ictisagora/backend/internal/models"
-	"gitlab.com/ictisagora/backend/internal/repository"
 	"log/slog"
 )
 

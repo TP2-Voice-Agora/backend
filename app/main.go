@@ -1,13 +1,13 @@
 package main
 
 import (
+	"github.com/TP2-Voice-Agora/backend/internal/lib/logger/prettyslog"
+	"github.com/TP2-Voice-Agora/backend/internal/repository/postgres"
+	"github.com/TP2-Voice-Agora/backend/internal/services/auth"
+	"github.com/TP2-Voice-Agora/backend/internal/services/http-server"
+	"github.com/TP2-Voice-Agora/backend/internal/services/ideas"
+	"github.com/TP2-Voice-Agora/backend/internal/services/users"
 	_ "github.com/joho/godotenv"
-	"gitlab.com/ictisagora/backend/internal/lib/logger/prettyslog"
-	"gitlab.com/ictisagora/backend/internal/repository/postgres"
-	"gitlab.com/ictisagora/backend/internal/services/auth"
-	"gitlab.com/ictisagora/backend/internal/services/http-server"
-	"gitlab.com/ictisagora/backend/internal/services/ideas"
-	"gitlab.com/ictisagora/backend/internal/services/users"
 	"log"
 	"log/slog"
 	"net/http"

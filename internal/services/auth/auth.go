@@ -2,10 +2,10 @@ package auth
 
 import (
 	"errors"
+	"github.com/TP2-Voice-Agora/backend/internal/lib/jwt"
+	"github.com/TP2-Voice-Agora/backend/internal/models"
+	"github.com/TP2-Voice-Agora/backend/internal/repository"
 	"github.com/google/uuid"
-	"gitlab.com/ictisagora/backend/internal/lib/jwt"
-	"gitlab.com/ictisagora/backend/internal/models"
-	"gitlab.com/ictisagora/backend/internal/repository"
 	"golang.org/x/crypto/bcrypt"
 	"log/slog"
 	"time"

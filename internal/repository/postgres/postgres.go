@@ -2,9 +2,9 @@ package postgres
 
 import (
 	sq "github.com/Masterminds/squirrel"
+	"github.com/TP2-Voice-Agora/backend/internal/models"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
-	"gitlab.com/ictisagora/backend/internal/models"
 	"log/slog"
 )
 
