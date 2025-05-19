@@ -2,10 +2,10 @@ package ideas
 
 import (
 	"errors"
+	"github.com/TP2-Voice-Agora/backend/internal/models"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"gitlab.com/ictisagora/backend/internal/models"
 	"log/slog"
 	"testing"
 )

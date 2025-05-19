@@ -3,8 +3,8 @@ package users
 import (
 	"errors"
 	"fmt"
-	"gitlab.com/ictisagora/backend/internal/models"
-	"gitlab.com/ictisagora/backend/internal/repository"
+	"github.com/TP2-Voice-Agora/backend/internal/models"
+	"github.com/TP2-Voice-Agora/backend/internal/repository"
 	"io"
 	"log/slog"
 	"mime/multipart"
