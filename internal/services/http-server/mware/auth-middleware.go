@@ -34,7 +34,7 @@ func AuthMiddleware(jwtSecret string, log *slog.Logger, s i.UserService) func(ht
 			uid, email, err := jwt.ParseToken(token, jwtSecret)
 			if err != nil {
 
-				log.Error("Failed to parse token", slog.String("error", err.Error()))
+				log.Error("Failed to parse token", slog.String("error", err.Error()), slog.String("token", token))
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}
