@@ -39,7 +39,7 @@ func NewHTTPServer(ideaService i.IdeaService, authService i.AuthService, userSer
 // middleware.
 func (s *HTTPServer) SetupRoutes() http.Handler {
 	r := chi.NewRouter()
-	s.log.Info("Version 1.4(Github Actions test")
+	s.log.Info("Version 1.5")
 
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"*"},
