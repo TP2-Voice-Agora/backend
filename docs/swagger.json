@@ -14,7 +14,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "comments"
+                    "Вставка комментариев\\ответов"
                 ],
                 "summary": "Вставка комментария(secure)",
                 "parameters": [
@@ -63,7 +63,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "ideas"
+                    "Идеи"
                 ],
                 "summary": "Все идеи(secure)",
                 "responses": {
@@ -93,7 +93,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "ideas"
+                    "Идеи"
                 ],
                 "summary": "Вставка новой идеи(secure)",
                 "parameters": [
@@ -136,7 +136,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "ideas"
+                    "Идеи"
                 ],
                 "summary": "Категории идей(secure)",
                 "responses": {
@@ -165,7 +165,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "ideas"
+                    "Идеи"
                 ],
                 "summary": "Статусы идей(secure)",
                 "responses": {
@@ -194,7 +194,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "ideas"
+                    "Идеи"
                 ],
                 "summary": "Конкретная идея(secure)",
                 "parameters": [
@@ -238,7 +238,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Авторизация\\Регистрация"
                 ],
                 "summary": "Аутентификация",
                 "parameters": [
@@ -290,7 +290,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Авторизация\\Регистрация"
                 ],
                 "summary": "Регистрация",
                 "parameters": [
@@ -350,7 +350,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "replies"
+                    "Вставка комментариев\\ответов"
                 ],
                 "summary": "Вставка ответа",
                 "parameters": [
@@ -402,7 +402,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Пользователи"
                 ],
                 "summary": "Загрузка PFP",
                 "parameters": [
@@ -452,7 +452,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Пользователи"
                 ],
                 "summary": "Получение юзера по UID",
                 "parameters": [
