@@ -25,7 +25,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "comments"
+                    "Вставка комментариев\\ответов"
                 ],
                 "summary": "Вставка комментария(secure)",
                 "parameters": [
@@ -74,7 +74,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "ideas"
+                    "Идеи"
                 ],
                 "summary": "Все идеи(secure)",
                 "responses": {
@@ -104,7 +104,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "ideas"
+                    "Идеи"
                 ],
                 "summary": "Вставка новой идеи(secure)",
                 "parameters": [
@@ -147,7 +147,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "ideas"
+                    "Идеи"
                 ],
                 "summary": "Категории идей(secure)",
                 "responses": {
@@ -176,7 +176,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "ideas"
+                    "Идеи"
                 ],
                 "summary": "Статусы идей(secure)",
                 "responses": {
@@ -205,7 +205,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "ideas"
+                    "Идеи"
                 ],
                 "summary": "Конкретная идея(secure)",
                 "parameters": [
@@ -249,7 +249,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Авторизация\\Регистрация"
                 ],
                 "summary": "Аутентификация",
                 "parameters": [
@@ -301,7 +301,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Авторизация\\Регистрация"
                 ],
                 "summary": "Регистрация",
                 "parameters": [
@@ -361,7 +361,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "replies"
+                    "Вставка комментариев\\ответов"
                 ],
                 "summary": "Вставка ответа",
                 "parameters": [
@@ -413,7 +413,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Пользователи"
                 ],
                 "summary": "Загрузка PFP",
                 "parameters": [
@@ -463,7 +463,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Пользователи"
                 ],
                 "summary": "Получение юзера по UID",
                 "parameters": [

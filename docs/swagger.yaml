@@ -188,7 +188,7 @@ paths:
             type: string
       summary: Вставка комментария(secure)
       tags:
-      - comments
+      - Вставка комментариев\ответов
   /ideas:
     get:
       description: Возвращает все идеи списков без комментариев\ответов.
@@ -207,7 +207,7 @@ paths:
             type: string
       summary: Все идеи(secure)
       tags:
-      - ideas
+      - Идеи
     post:
       consumes:
       - application/json
@@ -236,7 +236,7 @@ paths:
             type: string
       summary: Вставка новой идеи(secure)
       tags:
-      - ideas
+      - Идеи
   /ideas/{uid}:
     get:
       description: Возвращает идею по UID, уже с комментариями\ответами
@@ -263,7 +263,7 @@ paths:
             type: string
       summary: Конкретная идея(secure)
       tags:
-      - ideas
+      - Идеи
   /ideas/categories:
     get:
       description: Ручка категорий идей, в теории дергается один раз при первой загрузке
@@ -283,7 +283,7 @@ paths:
             type: string
       summary: Категории идей(secure)
       tags:
-      - ideas
+      - Идеи
   /ideas/statuses:
     get:
       description: Ручка статусов идей, в теории дергается один раз при первой загрузке
@@ -303,7 +303,7 @@ paths:
             type: string
       summary: Статусы идей(secure)
       tags:
-      - ideas
+      - Идеи
   /login:
     post:
       consumes:
@@ -338,7 +338,7 @@ paths:
             type: string
       summary: Аутентификация
       tags:
-      - auth
+      - Авторизация\Регистрация
   /register:
     post:
       consumes:
@@ -374,7 +374,7 @@ paths:
             type: string
       summary: Регистрация
       tags:
-      - auth
+      - Авторизация\Регистрация
   /replies:
     post:
       consumes:
@@ -410,7 +410,7 @@ paths:
       - JWTAuth: []
       summary: Вставка ответа
       tags:
-      - replies
+      - Вставка комментариев\ответов
   /users/{uid}:
     get:
       description: Возвращает данные пользователя по UID.
@@ -437,7 +437,7 @@ paths:
             type: string
       summary: Получение юзера по UID
       tags:
-      - users
+      - Пользователи
   /users/pfp:
     post:
       consumes:
@@ -472,5 +472,5 @@ paths:
             type: string
       summary: Загрузка PFP
       tags:
-      - users
+      - Пользователи
 swagger: "2.0"
