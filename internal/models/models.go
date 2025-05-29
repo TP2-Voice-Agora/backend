@@ -5,8 +5,8 @@ import "time"
 // everywhere is SQLx style db tags
 
 type UserPosition struct {
-	ID   int    `db:"id"`
-	Name string `db:"name"`
+	ID   int    `db:"id" json:"id"`
+	Name string `db:"name" json:"name"`
 }
 
 type User struct {
@@ -25,13 +25,13 @@ type User struct {
 }
 
 type IdeaCategory struct {
-	ID   int    `db:"id"`
-	Name string `db:"name"`
+	ID   int    `db:"id" json:"id"`
+	Name string `db:"name" json:"name"`
 }
 
 type IdeaStatus struct {
-	ID   int    `db:"id"`
-	Name string `db:"name"`
+	ID   int    `db:"id" json:"id"`
+	Name string `db:"name" json:"name"`
 }
 
 type Idea struct {

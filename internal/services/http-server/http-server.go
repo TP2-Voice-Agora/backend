@@ -81,6 +81,8 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 
 		r.Get("/users/{uid}", s.handleGetUser)
 		r.Post("/users/pfp", s.handleUploadUserPFP)
+
+		r.Get("/users/positions", s.handleGetUserPositions)
 	})
 
 	return r
@@ -211,6 +213,29 @@ func (s *HTTPServer) handleGetIdeaStatuses(w http.ResponseWriter, r *http.Reques
 
 	statuses := s.ideaService.GetIdeaStatuses()
 	resp, _ := json.Marshal(statuses)
+	w.Header().Set("Content-Type", "application/json")
+	_, _ = w.Write(resp)
+}
+
+// handleGetIdeaStatuses
+// @Summary      Позиции сотрудников
+// @Description  Ручка позиции сотрудников
+// @Tags         Пользователи
+// @Produce      json
+// @Success      200  {array}   models.UserPosition
+// @Failure      405  {string}  string  "Invalid method"
+// @Router       /users/positions [get]
+func (s *HTTPServer) handleGetUserPositions(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	positions, err := s.userService.GetPositions()
+	if err != nil {
+		s.log.Error("failed to get positions", slog.String("error", err.Error()))
+	}
+	resp, _ := json.Marshal(positions)
 	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write(resp)
 }

@@ -85,3 +85,17 @@ func (u *Users) UploadPFP(
 
 	return filePath, nil
 }
+
+func (u *Users) GetPositions() ([]models.UserPosition, error) {
+	op := "GetPositions"
+	log := u.log.With(
+		slog.String("op", op),
+	)
+
+	userCategories, err := u.repo.SelectPositions()
+	if err != nil {
+		log.Error("failed to fetch positions", slog.String("error", err.Error()))
+	}
+	log.Debug("successfully fetched positions")
+	return userCategories, nil
+}
