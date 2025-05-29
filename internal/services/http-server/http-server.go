@@ -76,8 +76,8 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 		r.Get("/ideas/{uid}", s.handleGetIdeaByUID)
 		r.Post("/ideas", s.handleInsertIdea)
 
-		r.Post("ideas/{uid}/like", s.handleIncreaseLikes)
-		r.Post("ideas/{uid}/dislike", s.handleIncreaseDislikes)
+		r.Post("/ideas/{uid}/like", s.handleIncreaseLikes)
+		r.Post("/ideas/{uid}/dislike", s.handleIncreaseDislikes)
 
 		r.Post("/comments", s.handleInsertComment)
 		r.Post("/replies", s.handleInsertReply)
