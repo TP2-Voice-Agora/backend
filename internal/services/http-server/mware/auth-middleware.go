@@ -2,8 +2,8 @@ package mware
 
 import (
 	"context"
-	"gitlab.com/ictisagora/backend/internal/lib/jwt"
-	i "gitlab.com/ictisagora/backend/internal/services/interfaces"
+	"github.com/TP2-Voice-Agora/backend/internal/lib/jwt"
+	i "github.com/TP2-Voice-Agora/backend/internal/services/interfaces"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -34,7 +34,7 @@ func AuthMiddleware(jwtSecret string, log *slog.Logger, s i.UserService) func(ht
 			uid, email, err := jwt.ParseToken(token, jwtSecret)
 			if err != nil {
 
-				log.Error("Failed to parse token", slog.String("error", err.Error()))
+				log.Error("Failed to parse token", slog.String("error", err.Error()), slog.String("token", token))
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}

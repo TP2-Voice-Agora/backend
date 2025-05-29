@@ -1,4 +1,4 @@
-module gitlab.com/ictisagora/backend
+module github.com/TP2-Voice-Agora/backend
 
 go 1.23.8
 

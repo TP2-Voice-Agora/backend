@@ -1,23 +1,27 @@
+version: "3.9"
+
 services:
   postgresdb:
     image: postgres:15
     restart: always
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
-      POSTGRES_DB: dbname
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - backendnet
 
   agorabackend:
     image: agoraback
     depends_on:
       - postgresdb
     environment:
-      - DATABASE_URL=postgres://user:pass@address:port/dbname
-      - JWT_SECRET=dsada12123dsdas12123
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
       - PORT=8080
     ports:
       - "8080:8080"

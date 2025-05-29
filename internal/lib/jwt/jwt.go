@@ -2,8 +2,8 @@ package jwt
 
 import (
 	"fmt"
+	"github.com/TP2-Voice-Agora/backend/internal/models"
 	"github.com/golang-jwt/jwt/v5"
-	"gitlab.com/ictisagora/backend/internal/models"
 	"time"
 )
 

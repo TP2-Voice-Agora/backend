@@ -2,18 +2,18 @@ package http_server
 
 import (
 	"encoding/json"
+	"github.com/TP2-Voice-Agora/backend/internal/models"
+	"github.com/TP2-Voice-Agora/backend/internal/services/http-server/mware"
+	i "github.com/TP2-Voice-Agora/backend/internal/services/interfaces"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"gitlab.com/ictisagora/backend/internal/models"
-	"gitlab.com/ictisagora/backend/internal/services/http-server/mware"
-	i "gitlab.com/ictisagora/backend/internal/services/interfaces"
 	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 
+	_ "github.com/TP2-Voice-Agora/backend/docs" // путь, куда будет генерироваться swagger doc
 	httpSwagger "github.com/swaggo/http-swagger"
-	_ "gitlab.com/ictisagora/backend/docs" // путь, куда будет генерироваться swagger doc
 )
 
 // HTTPServer encapsulates the server dependencies and routes.
@@ -39,12 +39,12 @@ func NewHTTPServer(ideaService i.IdeaService, authService i.AuthService, userSer
 // middleware.
 func (s *HTTPServer) SetupRoutes() http.Handler {
 	r := chi.NewRouter()
-	s.log.Info("Version 1.3")
+	s.log.Info("Version 1.5")
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins:   []string{"http://localhost:5173"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"*"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization", "X-Requested-With"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
 		MaxAge:           300,
@@ -89,7 +89,7 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 // handleLogin
 // @Summary      Аутентификация
 // @Description  Аутентификация, возвращает jwt токен, который прикладывается ко всем (secure) рутам.
-// @Tags         auth
+// @Tags         Авторизация\Регистрация
 // @Accept       json
 // @Produce      json
 // @Param        loginRequest  body  models.LoginRequest true  "Login data"
@@ -133,7 +133,7 @@ func (s *HTTPServer) handleLogin(w http.ResponseWriter, r *http.Request) {
 // handleRegister
 // @Summary      Регистрация
 // @Description  Регистрация - будет только в админке
-// @Tags         auth
+// @Tags         Авторизация\Регистрация
 // @Accept       json
 // @Produce      json
 // @Param        registerRequest  body  models.RegisterRequest true "Register data"
@@ -177,7 +177,7 @@ func (s *HTTPServer) handleRegister(w http.ResponseWriter, r *http.Request) {
 // @Summary      Категории идей(secure)
 // @Description  Ручка категорий идей, в теории дергается один раз при первой загрузке страницы,
 // так как никогда не обновляется
-// @Tags         ideas
+// @Tags         Идеи
 // @Produce      json
 // @Success      200  {array}   models.IdeaCategory
 // @Failure      405  {string}  string  "Invalid method"
@@ -198,7 +198,7 @@ func (s *HTTPServer) handleGetIdeaCategories(w http.ResponseWriter, r *http.Requ
 // @Summary      Статусы идей(secure)
 // @Description  Ручка статусов идей, в теории дергается один раз при первой загрузке страницы,
 // // так как никогда не обновляется
-// @Tags         ideas
+// @Tags         Идеи
 // @Produce      json
 // @Success      200  {array}   models.IdeaStatus
 // @Failure      405  {string}  string  "Invalid method"
@@ -218,7 +218,7 @@ func (s *HTTPServer) handleGetIdeaStatuses(w http.ResponseWriter, r *http.Reques
 // handleGetAllIdeas
 // @Summary      Все идеи(secure)
 // @Description  Возвращает все идеи списков без комментариев\ответов.
-// @Tags         ideas
+// @Tags         Идеи
 // @Produce      json
 // @Success      200  {array}   models.Idea
 // @Failure      500  {string}  string  "Failed to get ideas"
@@ -239,7 +239,7 @@ func (s *HTTPServer) handleGetAllIdeas(w http.ResponseWriter, r *http.Request) {
 // handleGetIdeaByUID
 // @Summary      Конкретная идея(secure)
 // @Description  Возвращает идею по UID, уже с комментариями\ответами
-// @Tags         ideas
+// @Tags         Идеи
 // @Produce      json
 // @Param        uid   path      string  true  "Idea UID"
 // @Success      200   {object}  models.IdeaComment
@@ -268,7 +268,7 @@ func (s *HTTPServer) handleGetIdeaByUID(w http.ResponseWriter, r *http.Request) 
 // handleInsertIdea
 // @Summary      Вставка новой идеи(secure)
 // @Description  Вставляет идею, и возвращает ее со всеми заполненными полями
-// @Tags         ideas
+// @Tags         Идеи
 // @Accept       json
 // @Produce      json
 // @Param        idea  body  models.InsertIdeaRequest true  "Idea data"
@@ -302,7 +302,7 @@ func (s *HTTPServer) handleInsertIdea(w http.ResponseWriter, r *http.Request) {
 // handleInsertComment
 // @Summary      Вставка комментария(secure)
 // @Description  Вставляет коммент и возвращает его.
-// @Tags         comments
+// @Tags         Вставка комментариев\ответов
 // @Accept       json
 // @Produce      json
 // @Param        comment body models.InsertCommentRequest true "Comment data"
@@ -340,7 +340,7 @@ func (s *HTTPServer) handleInsertComment(w http.ResponseWriter, r *http.Request)
 // handleInsertReply
 // @Summary      Вставка ответа
 // @Description  Вставляет новый ответ, и возвращает его
-// @Tags         replies
+// @Tags         Вставка комментариев\ответов
 // @Accept       json
 // @Produce      json
 // @Param        reply  body  models.InsertReplyRequest true "Reply data"
@@ -377,7 +377,7 @@ func (s *HTTPServer) handleInsertReply(w http.ResponseWriter, r *http.Request) {
 // handleGetUser
 // @Summary      Получение юзера по UID
 // @Description  Возвращает данные пользователя по UID.
-// @Tags         users
+// @Tags         Пользователи
 // @Produce      json
 // @Param        uid   path      string  true  "User UID"
 // @Success      200   {object}  models.User
@@ -405,7 +405,7 @@ func (s *HTTPServer) handleGetUser(w http.ResponseWriter, r *http.Request) {
 // handleUploadUserPFP
 // @Summary      Загрузка PFP
 // @Description  Загрузка новой аватарки для юзера.
-// @Tags         users
+// @Tags         Пользователи
 // @Accept       multipart/form-data
 // @Produce      json
 // @Param        profile_picture  formData  file  true  "Profile picture file"
