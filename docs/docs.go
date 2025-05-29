@@ -456,6 +456,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/positions": {
+            "get": {
+                "description": "Ручка позиции сотрудников",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Пользователи"
+                ],
+                "summary": "Позиции сотрудников",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.UserPosition"
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "Invalid method",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/users/{uid}": {
             "get": {
                 "description": "Возвращает данные пользователя по UID.",
@@ -731,6 +760,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "uid": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserPosition": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 }
             }

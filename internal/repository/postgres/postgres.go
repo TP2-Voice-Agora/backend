@@ -89,7 +89,7 @@ func (pg *PostgresRepository) SelectUserByUID(uid string) (models.User, error) {
 func (pg *PostgresRepository) SelectPositions() ([]models.UserPosition, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
-	q, args, err := psql.Select("*").From("positions").ToSql()
+	q, args, err := psql.Select("*").From("user_positions").ToSql()
 	if err != nil {
 		return nil, err
 	}
