@@ -239,6 +239,100 @@ const docTemplate = `{
                 }
             }
         },
+        "/ideas/{uid}/dislike": {
+            "post": {
+                "description": "Увеличение дизлайков",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Идеи"
+                ],
+                "summary": "Увеличение дизлайков",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Idea UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Invalid method",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to increase dislikes",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/ideas/{uid}/like": {
+            "post": {
+                "description": "Увеличение лайков",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Идеи"
+                ],
+                "summary": "Увеличение лайков",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Idea UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Invalid method",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to increase likes",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Аутентификация, возвращает jwt токен, который прикладывается ко всем (secure) рутам.",

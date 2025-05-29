@@ -271,6 +271,68 @@ paths:
       summary: Конкретная идея(secure)
       tags:
       - Идеи
+  /ideas/{uid}/dislike:
+    post:
+      description: Увеличение дизлайков
+      parameters:
+      - description: Idea UID
+        in: path
+        name: uid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "405":
+          description: Invalid method
+          schema:
+            type: string
+        "500":
+          description: Failed to increase dislikes
+          schema:
+            type: string
+      summary: Увеличение дизлайков
+      tags:
+      - Идеи
+  /ideas/{uid}/like:
+    post:
+      description: Увеличение лайков
+      parameters:
+      - description: Idea UID
+        in: path
+        name: uid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "405":
+          description: Invalid method
+          schema:
+            type: string
+        "500":
+          description: Failed to increase likes
+          schema:
+            type: string
+      summary: Увеличение лайков
+      tags:
+      - Идеи
   /ideas/categories:
     get:
       description: Ручка категорий идей, в теории дергается один раз при первой загрузке

@@ -76,6 +76,9 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 		r.Get("/ideas/{uid}", s.handleGetIdeaByUID)
 		r.Post("/ideas", s.handleInsertIdea)
 
+		r.Post("ideas/{uid}/like", s.handleIncreaseLikes)
+		r.Post("ideas/{uid}/dislike", s.handleIncreaseDislikes)
+
 		r.Post("/comments", s.handleInsertComment)
 		r.Post("/replies", s.handleInsertReply)
 
@@ -463,4 +466,56 @@ func (s *HTTPServer) handleUploadUserPFP(w http.ResponseWriter, r *http.Request)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(resp)
+}
+
+// handleIncreaseLikes
+// @Summary      Увеличение лайков
+// @Description  Увеличение лайков
+// @Tags         Идеи
+// @Produce      json
+// @Param        uid   path      string  true  "Idea UID"
+// @Success      200  {string}  string  "ok"
+// @Failure      400  {string}  string  "Bad request"
+// @Failure      405  {string}  string  "Invalid method"
+// @Failure      500  {string}  string  "Failed to increase likes"
+// @Router       /ideas/{uid}/like [post]
+func (s *HTTPServer) handleIncreaseLikes(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+	}
+
+	err := s.ideaService.IncrementLikes(chi.URLParam(r, "uid"))
+	if err != nil {
+		s.log.Error("failed to increase likes", slog.String("error", err.Error()))
+		http.Error(w, "Failed to increase likes", http.StatusInternalServerError)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte("ok"))
+}
+
+// handleIncreaseDislikes
+// @Summary      Увеличение дизлайков
+// @Description  Увеличение дизлайков
+// @Tags         Идеи
+// @Produce      json
+// @Param        uid   path      string  true  "Idea UID"
+// @Success      200  {string}  string  "ok"
+// @Failure      400  {string}  string  "Bad request"
+// @Failure      405  {string}  string  "Invalid method"
+// @Failure      500  {string}  string  "Failed to increase dislikes"
+// @Router       /ideas/{uid}/dislike [post]
+func (s *HTTPServer) handleIncreaseDislikes(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+	}
+
+	err := s.ideaService.IncrementDislikes(chi.URLParam(r, "uid"))
+	if err != nil {
+		s.log.Error("failed to increase dislikes", slog.String("error", err.Error()))
+		http.Error(w, "Failed to increase dislikes", http.StatusInternalServerError)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte("ok"))
 }
