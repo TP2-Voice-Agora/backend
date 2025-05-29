@@ -111,14 +111,19 @@ func (s *HTTPServer) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jwtToken, err := s.authService.Login(body.Email, body.Password)
+	jwtToken, userUID, err := s.authService.Login(body.Email, body.Password)
 	if err != nil {
 		s.log.Error("failed to log in user", slog.String("email", body.Email), slog.String("error", err.Error()))
 		http.Error(w, "Failed to login", http.StatusInternalServerError)
 		return
 	}
-
-	resp, _ := json.Marshal(jwtToken)
+	var respBody struct {
+		Token string `json:"Token"`
+		Uid   string `json:"Uid"`
+	}
+	respBody.Token = jwtToken
+	respBody.Uid = userUID
+	resp, _ := json.Marshal(respBody)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(resp)

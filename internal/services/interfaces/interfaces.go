@@ -18,7 +18,7 @@ type IdeaService interface {
 
 type AuthService interface {
 	Register(u models.User) error
-	Login(email string, password string) (string, error)
+	Login(email string, password string) (string, string, error)
 	GetJWT() string
 }
 

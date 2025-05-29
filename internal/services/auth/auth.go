@@ -58,7 +58,7 @@ func (a *Auth) Register(u models.User) error {
 	return nil
 }
 
-func (a *Auth) Login(email string, password string) (string, error) {
+func (a *Auth) Login(email string, password string) (string, string, error) {
 	op := "AuthLogin"
 	log := a.log.With(
 		slog.String("op", op),
@@ -70,12 +70,12 @@ func (a *Auth) Login(email string, password string) (string, error) {
 	user, err := a.repo.SelectUserByEmail(email)
 	if err != nil {
 		log.Error("error selecting user" + err.Error())
-		return "", errors.New("user not found")
+		return "", "", errors.New("user not found")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		a.log.Error("incorrect password")
-		return "", errors.New("incorrect password")
+		return "", "", errors.New("incorrect password")
 	}
 	//TODO: make app provider
 
@@ -83,7 +83,7 @@ func (a *Auth) Login(email string, password string) (string, error) {
 
 	token := jwt.NewToken(user, a.tokenTTL, a.jwtSecret)
 
-	return token, nil
+	return token, user.UID, nil
 }
 
 func (a *Auth) GetJWT() string {
