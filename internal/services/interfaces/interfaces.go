@@ -14,6 +14,8 @@ type IdeaService interface {
 	InsertIdea(name string, text string, author string, status int, category int) (models.Idea, error)
 	InsertComment(ideaUID, authorUID, commentText string) (models.Comment, error)
 	InsertReply(commentUID, authorID, replyText string) (models.Reply, error)
+	IncrementDislikes(ideaUID string) error
+	IncrementLikes(ideaUID string) error
 }
 
 type AuthService interface {

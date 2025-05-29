@@ -372,3 +372,31 @@ func (pg *PostgresRepository) UpdateUserPfpURL(uid string, url string) error {
 	_, err = pg.db.Exec(q, args...)
 	return err
 }
+
+func (pg *PostgresRepository) IncrementLikeCount(ideaUID string) error {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+
+	q, args, err := psql.Update("ideas").
+		Set("like_count", sq.Expr("like_count + 1")).
+		Where(sq.Eq{"idea_uid": ideaUID}).
+		ToSql()
+	if err != nil {
+		return err
+	}
+	_, err = pg.db.Exec(q, args...)
+	return err
+}
+
+func (pg *PostgresRepository) IncrementDislikeCount(ideaUID string) error {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+
+	q, args, err := psql.Update("ideas").
+		Set("dislike_count", sq.Expr("dislike_count + 1")).
+		Where(sq.Eq{"idea_uid": ideaUID}).
+		ToSql()
+	if err != nil {
+		return err
+	}
+	_, err = pg.db.Exec(q, args...)
+	return err
+}

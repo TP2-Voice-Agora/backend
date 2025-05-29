@@ -1,6 +1,7 @@
 package ideas
 
 import (
+	"errors"
 	"github.com/TP2-Voice-Agora/backend/internal/models"
 	"github.com/TP2-Voice-Agora/backend/internal/repository"
 	"github.com/google/uuid"
@@ -292,4 +293,46 @@ func (i *Ideas) InsertReply(commentUID, authorID, replyText string) (models.Repl
 	log.Info("successfully inserted reply, UUID:" + reply.ReplyUID)
 
 	return reply, nil
+}
+
+func (i *Ideas) IncrementLikes(ideaUID string) error {
+	op := "IdeasIncrementLikes"
+	log := i.log.With(slog.String("op", op),
+		slog.String("ideaUID", ideaUID),
+	)
+	log.Debug("incrementing likes")
+
+	if ideaUID == "" {
+		log.Error("ideaUID is null")
+		return errors.New("ideaUID is null")
+	}
+
+	err := i.repo.IncrementLikeCount(ideaUID)
+	if err != nil {
+		log.Error("failed to increment likes" + err.Error())
+		return err
+	}
+	log.Info("successfully inserted likes")
+	return nil
+}
+
+func (i *Ideas) IncrementDislikes(ideaUID string) error {
+	op := "IdeasIncrementDislikes"
+	log := i.log.With(slog.String("op", op),
+		slog.String("ideaUID", ideaUID),
+	)
+	log.Debug("incrementing dislikes")
+
+	if ideaUID == "" {
+		log.Error("ideaUID is null")
+		return errors.New("ideaUID is null")
+	}
+
+	err := i.repo.IncrementDislikeCount(ideaUID)
+	if err != nil {
+		log.Error("failed to increment dislikes" + err.Error())
+		return err
+	}
+	log.Info("successfully inserted dislikes")
+	return nil
 }

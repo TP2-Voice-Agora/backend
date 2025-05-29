@@ -29,4 +29,7 @@ type Repository interface {
 	SelectIdeaStatuses() ([]models.IdeaStatus, error)
 
 	UpdateUserPfpURL(uid string, url string) error
+
+	IncrementDislikeCount(ideaUID string) error
+	IncrementLikeCount(ideaUID string) error
 }
