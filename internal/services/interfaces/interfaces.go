@@ -25,4 +25,5 @@ type AuthService interface {
 type UserService interface {
 	GetUserByUID(uid string) (models.User, error)
 	UploadPFP(file multipart.File, header *multipart.FileHeader, UID string) (string, error)
+	GetPositions() ([]models.UserPosition, error)
 }
