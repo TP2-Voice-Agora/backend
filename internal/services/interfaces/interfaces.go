@@ -16,6 +16,8 @@ type IdeaService interface {
 	InsertReply(commentUID, authorID, replyText string) (models.Reply, error)
 	IncrementDislikes(ideaUID string) error
 	IncrementLikes(ideaUID string) error
+	CheckLike(ideaUID string, userUID string) (bool, error)
+	CheckDislike(ideaUID string, userUID string) (bool, error)
 }
 
 type AuthService interface {

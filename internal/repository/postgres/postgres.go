@@ -400,3 +400,73 @@ func (pg *PostgresRepository) IncrementDislikeCount(ideaUID string) error {
 	_, err = pg.db.Exec(q, args...)
 	return err
 }
+
+func (pg *PostgresRepository) CheckLike(ideaUID string, userUID string) (bool, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+
+	var exists bool
+	checkQuery, args, err := psql.Select("exists (SELECT 1 FROM like_history WHERE idea_uid = $1 AND user_uid = $2)").
+		ToSql()
+	if err != nil {
+		return false, err
+	}
+
+	err = pg.db.QueryRow(checkQuery, ideaUID, userUID).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	if exists {
+		return false, nil
+	}
+
+	insertQuery, args, err := psql.Insert("like_history").
+		Columns("idea_uid", "user_uid").
+		Values(ideaUID, userUID).
+		ToSql()
+	if err != nil {
+		return false, err
+	}
+
+	_, err = pg.db.Exec(insertQuery, args...)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (pg *PostgresRepository) CheckDislike(ideaUID string, userUID string) (bool, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+
+	var exists bool
+	checkQuery, args, err := psql.Select("exists (SELECT 1 FROM dislike_history WHERE idea_uid = $1 AND user_uid = $2)").
+		ToSql()
+	if err != nil {
+		return false, err
+	}
+
+	err = pg.db.QueryRow(checkQuery, ideaUID, userUID).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	if exists {
+		return false, nil
+	}
+
+	insertQuery, args, err := psql.Insert("dislike_history").
+		Columns("idea_uid", "user_uid").
+		Values(ideaUID, userUID).
+		ToSql()
+	if err != nil {
+		return false, err
+	}
+
+	_, err = pg.db.Exec(insertQuery, args...)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
