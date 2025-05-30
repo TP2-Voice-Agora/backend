@@ -28,8 +28,7 @@ type Repository interface {
 	SelectIdeaCategories() ([]models.IdeaCategory, error)
 	SelectIdeaStatuses() ([]models.IdeaStatus, error)
 
-	CheckLike(ideaUID string, userUID string) (bool, error)
-	CheckDislike(ideaUID string, userUID string) (bool, error)
+	CheckVote(ideaUID string, userUID string) (bool, error)
 
 	UpdateUserPfpURL(uid string, url string) error
 

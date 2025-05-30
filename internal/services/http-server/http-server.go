@@ -502,7 +502,7 @@ func (s *HTTPServer) handleIncreaseLikes(w http.ResponseWriter, r *http.Request)
 
 	userUID := r.Context().Value(mware.ContextUserUID).(string)
 
-	ok, err := s.ideaService.CheckLike(chi.URLParam(r, "uid"), userUID)
+	ok, err := s.ideaService.CheckVote(chi.URLParam(r, "uid"), userUID)
 	if err != nil {
 		s.log.Error("failed to check liked user", slog.String("error", err.Error()))
 	}
@@ -535,7 +535,7 @@ func (s *HTTPServer) handleIncreaseDislikes(w http.ResponseWriter, r *http.Reque
 	}
 	userUID := r.Context().Value(mware.ContextUserUID).(string)
 
-	ok, err := s.ideaService.CheckDislike(chi.URLParam(r, "uid"), userUID)
+	ok, err := s.ideaService.CheckVote(chi.URLParam(r, "uid"), userUID)
 	if err != nil {
 		s.log.Error("failed to check liked user", slog.String("error", err.Error()))
 	}

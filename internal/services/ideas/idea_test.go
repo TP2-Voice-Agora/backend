@@ -24,10 +24,7 @@ func (m *MockRepository) SelectUserByUID(uid string) (models.User, error)   { re
 func (m *MockRepository) UpdateUserPfpURL(uid string, url string) error     { return nil }
 func (m *MockRepository) IncrementDislikeCount(ideaUID string) error        { return nil }
 func (m *MockRepository) IncrementLikeCount(ideaUID string) error           { return nil }
-func (m *MockRepository) CheckLike(ideaUID string, userUID string) (bool, error) {
-	return false, nil
-}
-func (m *MockRepository) CheckDislike(ideaUID string, userUID string) (bool, error) {
+func (m *MockRepository) CheckVote(ideaUID string, userUID string) (bool, error) {
 	return false, nil
 }
 func (m *MockRepository) InsertIdea(idea models.Idea) error {
