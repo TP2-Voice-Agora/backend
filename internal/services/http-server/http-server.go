@@ -56,10 +56,6 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 		r.Use(middleware.Recoverer)
 		r.Use(middleware.RequestID)
 		r.Use(middleware.RealIP)
-		r.Post("/login", s.handleLogin)
-		r.Post("/register", s.handleRegister)
-		r.Handle("/uploads/*", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
-		r.Get("/swagger/*", httpSwagger.WrapHandler)
 
 		r.Use(func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -67,6 +63,11 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 				next.ServeHTTP(w, r)
 			})
 		})
+
+		r.Post("/login", s.handleLogin)
+		r.Post("/register", s.handleRegister)
+		r.Handle("/uploads/*", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
+		r.Get("/swagger/*", httpSwagger.WrapHandler)
 	})
 
 	r.Group(func(r chi.Router) {
