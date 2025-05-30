@@ -7,6 +7,7 @@ import (
 	i "github.com/TP2-Voice-Agora/backend/internal/services/interfaces"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"log"
 	"log/slog"
 	"net/http"
 
@@ -59,6 +60,13 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 		r.Post("/register", s.handleRegister)
 		r.Handle("/uploads/*", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
 		r.Get("/swagger/*", httpSwagger.WrapHandler)
+
+		r.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				log.Printf("Real IP: %s", r.RemoteAddr)
+				next.ServeHTTP(w, r)
+			})
+		})
 	})
 
 	r.Group(func(r chi.Router) {
@@ -68,6 +76,13 @@ func (s *HTTPServer) SetupRoutes() http.Handler {
 		r.Use(middleware.Recoverer)
 		r.Use(middleware.RequestID)
 		r.Use(middleware.RealIP)
+
+		r.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				log.Printf("Real IP: %s", r.RemoteAddr)
+				next.ServeHTTP(w, r)
+			})
+		})
 
 		r.Get("/ideas/categories", s.handleGetIdeaCategories)
 		r.Get("/ideas/statuses", s.handleGetIdeaStatuses)
@@ -484,7 +499,15 @@ func (s *HTTPServer) handleIncreaseLikes(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 	}
 
-	err := s.ideaService.IncrementLikes(chi.URLParam(r, "uid"))
+	userUID := r.Context().Value(mware.ContextUserUID).(string)
+
+	ok, err := s.ideaService.CheckLike(chi.URLParam(r, "uid"), userUID)
+	if err != nil {
+		s.log.Error("failed to check liked user", slog.String("error", err.Error()))
+	}
+	if ok {
+		err = s.ideaService.IncrementLikes(chi.URLParam(r, "uid"))
+	}
 	if err != nil {
 		s.log.Error("failed to increase likes", slog.String("error", err.Error()))
 		http.Error(w, "Failed to increase likes", http.StatusInternalServerError)
@@ -509,8 +532,15 @@ func (s *HTTPServer) handleIncreaseDislikes(w http.ResponseWriter, r *http.Reque
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 	}
+	userUID := r.Context().Value(mware.ContextUserUID).(string)
 
-	err := s.ideaService.IncrementDislikes(chi.URLParam(r, "uid"))
+	ok, err := s.ideaService.CheckDislike(chi.URLParam(r, "uid"), userUID)
+	if err != nil {
+		s.log.Error("failed to check liked user", slog.String("error", err.Error()))
+	}
+	if ok {
+		err = s.ideaService.IncrementDislikes(chi.URLParam(r, "uid"))
+	}
 	if err != nil {
 		s.log.Error("failed to increase dislikes", slog.String("error", err.Error()))
 		http.Error(w, "Failed to increase dislikes", http.StatusInternalServerError)

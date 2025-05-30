@@ -336,3 +336,49 @@ func (i *Ideas) IncrementDislikes(ideaUID string) error {
 	log.Info("successfully inserted dislikes")
 	return nil
 }
+
+func (i *Ideas) CheckLike(ideaUID string, userUID string) (bool, error) {
+	op := "IdeasCheckLike"
+	log := i.log.With(slog.String("op", op),
+		slog.String("ideaUID", ideaUID),
+		slog.String("userUID", userUID),
+	)
+	log.Debug("checking likes")
+
+	if ideaUID == "" {
+		log.Error("ideaUID is null")
+	}
+	if userUID == "" {
+		log.Error("userUID is null")
+	}
+
+	ok, err := i.repo.CheckLike(ideaUID, userUID)
+	if err != nil {
+		log.Error("failed to check likes" + err.Error())
+	}
+	log.Info("successfully checked likes")
+	return ok, nil
+}
+
+func (i *Ideas) CheckDislike(ideaUID string, userUID string) (bool, error) {
+	op := "IdeasCheckDislike"
+	log := i.log.With(slog.String("op", op),
+		slog.String("ideaUID", ideaUID),
+		slog.String("userUID", userUID),
+	)
+	log.Debug("checking dislikes")
+
+	if ideaUID == "" {
+		log.Error("ideaUID is null")
+	}
+	if userUID == "" {
+		log.Error("userUID is null")
+	}
+
+	ok, err := i.repo.CheckDislike(ideaUID, userUID)
+	if err != nil {
+		log.Error("failed to check dislikes" + err.Error())
+	}
+	log.Info("successfully checked dislikes")
+	return ok, nil
+}
