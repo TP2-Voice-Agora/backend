@@ -337,8 +337,8 @@ func (i *Ideas) IncrementDislikes(ideaUID string) error {
 	return nil
 }
 
-func (i *Ideas) CheckLike(ideaUID string, userUID string) (bool, error) {
-	op := "IdeasCheckLike"
+func (i *Ideas) CheckVote(ideaUID string, userUID string) (bool, error) {
+	op := "IdeasCheckVote"
 	log := i.log.With(slog.String("op", op),
 		slog.String("ideaUID", ideaUID),
 		slog.String("userUID", userUID),
@@ -352,33 +352,10 @@ func (i *Ideas) CheckLike(ideaUID string, userUID string) (bool, error) {
 		log.Error("userUID is null")
 	}
 
-	ok, err := i.repo.CheckLike(ideaUID, userUID)
+	ok, err := i.repo.CheckVote(ideaUID, userUID)
 	if err != nil {
-		log.Error("failed to check likes" + err.Error())
+		log.Error("failed to check vote" + err.Error())
 	}
-	log.Info("successfully checked likes")
-	return ok, nil
-}
-
-func (i *Ideas) CheckDislike(ideaUID string, userUID string) (bool, error) {
-	op := "IdeasCheckDislike"
-	log := i.log.With(slog.String("op", op),
-		slog.String("ideaUID", ideaUID),
-		slog.String("userUID", userUID),
-	)
-	log.Debug("checking dislikes")
-
-	if ideaUID == "" {
-		log.Error("ideaUID is null")
-	}
-	if userUID == "" {
-		log.Error("userUID is null")
-	}
-
-	ok, err := i.repo.CheckDislike(ideaUID, userUID)
-	if err != nil {
-		log.Error("failed to check dislikes" + err.Error())
-	}
-	log.Info("successfully checked dislikes")
+	log.Info("successfully checked votes")
 	return ok, nil
 }
